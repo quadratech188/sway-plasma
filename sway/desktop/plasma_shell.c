@@ -9,6 +9,7 @@
 #include "log.h"
 #include "plasma-shell-protocol.h"
 #include "sway/tree/container.h"
+#include "sway/tree/view.h"
 
 #define PLASMA_SHELL_VERSION 8
 
@@ -27,6 +28,7 @@ static struct plasma_surface *plasma_surface_from_resource(struct wl_resource *r
 static void plasma_surface_resource_destroy(struct wl_resource *resource) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
 
+	wl_list_remove(&surface->link);
 	wl_list_remove(&surface->parent_destroy.link);
 	free(surface);
 }
@@ -56,7 +58,19 @@ static void plasma_surface_set_position(
 	int32_t x,
 	int32_t y
 ) {
-	sway_log(SWAY_INFO, "STUB: plasma_surface_set_position");
+	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+
+	struct sway_view *view = view_from_wlr_surface(surface->surface);
+
+	surface->position_set = true;
+	surface->x = x;
+	surface->y = y;
+
+	// If these are not initialized, position will be applied in view_map()
+	if (!view || !view->container) return;
+
+	container_set_floating(view->container, true);
+	container_floating_move_to(view->container, x, y);
 }
 
 static void plasma_surface_set_role(
@@ -170,6 +184,8 @@ static void plasma_shell_get_surface(
 		goto error_surface;
 	}
 
+	wl_list_insert(&shell->surfaces, &surface->link);
+
 	wl_resource_set_implementation(
 		surface->resource,
 		&plasma_surface_implementation,
@@ -226,6 +242,8 @@ struct plasma_shell *plasma_shell_create(struct wl_display *display, uint32_t ve
 	struct plasma_shell *plasma_shell = calloc(1, sizeof(*plasma_shell));
 	if (!plasma_shell) {return NULL;}
 
+	wl_list_init(&plasma_shell->surfaces);
+
 	struct wl_global *global = wl_global_create(
 		display,
 		&org_kde_plasma_shell_interface,
@@ -243,4 +261,15 @@ struct plasma_shell *plasma_shell_create(struct wl_display *display, uint32_t ve
 	wl_display_add_destroy_listener(display, &plasma_shell->parent_destroy);
 
 	return plasma_shell;
+}
+
+struct plasma_surface *plasma_shell_find_plasma_surface(
+	struct plasma_shell *shell,
+	struct wlr_surface *surface
+) {
+	struct plasma_surface *ptr;
+	wl_list_for_each(ptr, &shell->surfaces, link) {
+		if (ptr->surface == surface) {return ptr;}
+	}
+	return NULL;
 }

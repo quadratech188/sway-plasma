@@ -36,6 +36,7 @@
 #include "sway/config.h"
 #include "sway/xdg_decoration.h"
 #include "stringop.h"
+#include "desktop/plasma_shell.h"
 
 static void handle_outputs_update(
 		struct wl_listener *listener, void *data) {
@@ -905,6 +906,16 @@ void view_map(struct sway_view *view, struct wlr_surface *wlr_surface,
 		view_update_csd_from_client(view, decoration);
 	}
 
+	struct plasma_surface *plasma = plasma_shell_find_plasma_surface(server.plasma_shell, view->surface);
+	if (plasma) {
+		if (plasma->position_set) {
+			sway_log(SWAY_DEBUG, "Set plasma position of %p: %d, %d", view, plasma->x, plasma->y);
+			container_set_floating(view->container, true);
+			container_floating_move_to(view->container, plasma->x, plasma->y);
+			goto skip_layout;
+		}
+	}
+
 	if (view->impl->wants_floating && view->impl->wants_floating(view)) {
 		view->container->pending.border = config->floating_border;
 		view->container->pending.border_thickness = config->floating_border_thickness;
@@ -925,6 +936,7 @@ void view_map(struct sway_view *view, struct wlr_surface *wlr_surface,
 		}
 	}
 
+skip_layout:
 	view_update_title(view, false);
 	container_update_representation(container);
 
@@ -961,6 +973,7 @@ void view_map(struct sway_view *view, struct wlr_surface *wlr_surface,
 
 	const char *app_id;
 	const char *class;
+
 	if ((app_id = view_get_app_id(view)) != NULL) {
 		wlr_foreign_toplevel_handle_v1_set_app_id(view->foreign_toplevel, app_id);
 	} else if ((class = view_get_class(view)) != NULL) {

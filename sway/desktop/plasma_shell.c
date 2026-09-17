@@ -49,7 +49,8 @@ static void plasma_surface_set_output(
 	struct wl_resource *resource,
 	struct wl_resource *output
 ) {
-	sway_log(SWAY_INFO, "STUB: plasma_surface_set_output");
+	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_output(%p, _)", surface);
 }
 
 static void plasma_surface_set_position(
@@ -78,7 +79,8 @@ static void plasma_surface_set_role(
 	struct wl_resource *resource,
 	uint32_t role
 ) {
-	sway_log(SWAY_INFO, "STUB: plasma_surface_set_role");
+	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_role(%p, %d)", surface, role);
 }
 
 static void plasma_surface_set_panel_behavior(
@@ -86,7 +88,8 @@ static void plasma_surface_set_panel_behavior(
 	struct wl_resource *resource,
 	uint32_t flag
 ) {
-	sway_log(SWAY_INFO, "STUB: plasma_surface_set_panel_behavior");
+	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_panel_behavior(%p, %d)", surface, flag);
 }
 
 static void plasma_surface_set_skip_taskbar(
@@ -94,21 +97,24 @@ static void plasma_surface_set_skip_taskbar(
 	struct wl_resource *resource,
 	uint32_t skip
 ) {
-	sway_log(SWAY_INFO, "STUB: plasma_surface_set_skip_taskbar");
+	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_skip_taskbar(%p, %d)", surface, skip);
 }
 
 static void plasma_surface_panel_auto_hide_hide(
 	struct wl_client *client,
 	struct wl_resource *resource
 ) {
-	sway_log(SWAY_INFO, "STUB: plasma_surface_panel_auto_hide_hide");
+	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	sway_log(SWAY_INFO, "STUB: plasma_surface_panel_auto_hide_hide(%p)", surface);
 }
 
 static void plasma_surface_panel_auto_hide_show(
 	struct wl_client *client,
 	struct wl_resource *resource
 ) {
-	sway_log(SWAY_INFO, "STUB: plasma_surface_panel_auto_hide_show");
+	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	sway_log(SWAY_INFO, "STUB: plasma_surface_panel_auto_hide_show(%p)", surface);
 }
 
 static void plasma_surface_set_panel_takes_focus(
@@ -116,7 +122,8 @@ static void plasma_surface_set_panel_takes_focus(
 	struct wl_resource *resource,
 	uint32_t takes_focus
 ) {
-	sway_log(SWAY_INFO, "STUB: plasma_surface_set_panel_takes_focus");
+	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_panel_takes_focus(%p, %d)", surface, takes_focus);
 }
 
 static void plasma_surface_set_skip_switcher(
@@ -124,14 +131,16 @@ static void plasma_surface_set_skip_switcher(
 	struct wl_resource *resource,
 	uint32_t skip
 ) {
-	sway_log(SWAY_INFO, "STUB: plasma_surface_set_skip_switcher");
+	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_skip_switcher(%p, %d)", surface, skip);
 }
 
 static void plasma_surface_open_under_cursor(
 	struct wl_client *client,
 	struct wl_resource *resource
 ) {
-	sway_log(SWAY_INFO, "STUB: plasma_surface_open_under_cursor");
+	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	sway_log(SWAY_INFO, "STUB: plasma_surface_open_under_cursor(%p)", surface);
 }
 
 static const struct org_kde_plasma_surface_interface plasma_surface_implementation = {

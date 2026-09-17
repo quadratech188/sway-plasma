@@ -1,0 +1,246 @@
+#include <assert.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <wayland-client-protocol.h>
+#include <wayland-server-core.h>
+#include <wayland-server.h>
+#include <wayland-util.h>
+#include "plasma_shell.h"
+#include "log.h"
+#include "plasma-shell-protocol.h"
+#include "sway/tree/container.h"
+
+#define PLASMA_SHELL_VERSION 8
+
+static const struct org_kde_plasma_shell_interface plasma_shell_implementation;
+static const struct org_kde_plasma_surface_interface plasma_surface_implementation;
+
+static struct plasma_surface *plasma_surface_from_resource(struct wl_resource *resource) {
+	assert(wl_resource_instance_of(
+		resource,
+		&org_kde_plasma_surface_interface,
+		&plasma_surface_implementation
+	));
+	return wl_resource_get_user_data(resource);
+}
+
+static void plasma_surface_resource_destroy(struct wl_resource *resource) {
+	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+
+	wl_list_remove(&surface->parent_destroy.link);
+	free(surface);
+}
+
+static void plasma_surface_parent_destroy(struct wl_listener *listener, void *data) {
+	struct plasma_surface *surface = wl_container_of(
+		listener, surface, parent_destroy
+	);
+	wl_resource_destroy(surface->resource);
+}
+
+static void plasma_surface_destroy(struct wl_client *client, struct wl_resource *resource) {
+	wl_resource_destroy(resource);
+}
+
+static void plasma_surface_set_output(
+	struct wl_client *client,
+	struct wl_resource *resource,
+	struct wl_resource *output
+) {
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_output");
+}
+
+static void plasma_surface_set_position(
+	struct wl_client *client,
+	struct wl_resource *resource,
+	int32_t x,
+	int32_t y
+) {
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_position");
+}
+
+static void plasma_surface_set_role(
+	struct wl_client *client,
+	struct wl_resource *resource,
+	uint32_t role
+) {
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_role");
+}
+
+static void plasma_surface_set_panel_behavior(
+	struct wl_client *client,
+	struct wl_resource *resource,
+	uint32_t flag
+) {
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_panel_behavior");
+}
+
+static void plasma_surface_set_skip_taskbar(
+	struct wl_client *client,
+	struct wl_resource *resource,
+	uint32_t skip
+) {
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_skip_taskbar");
+}
+
+static void plasma_surface_panel_auto_hide_hide(
+	struct wl_client *client,
+	struct wl_resource *resource
+) {
+	sway_log(SWAY_INFO, "STUB: plasma_surface_panel_auto_hide_hide");
+}
+
+static void plasma_surface_panel_auto_hide_show(
+	struct wl_client *client,
+	struct wl_resource *resource
+) {
+	sway_log(SWAY_INFO, "STUB: plasma_surface_panel_auto_hide_show");
+}
+
+static void plasma_surface_set_panel_takes_focus(
+	struct wl_client *client,
+	struct wl_resource *resource,
+	uint32_t takes_focus
+) {
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_panel_takes_focus");
+}
+
+static void plasma_surface_set_skip_switcher(
+	struct wl_client *client,
+	struct wl_resource *resource,
+	uint32_t skip
+) {
+	sway_log(SWAY_INFO, "STUB: plasma_surface_set_skip_switcher");
+}
+
+static void plasma_surface_open_under_cursor(
+	struct wl_client *client,
+	struct wl_resource *resource
+) {
+	sway_log(SWAY_INFO, "STUB: plasma_surface_open_under_cursor");
+}
+
+static const struct org_kde_plasma_surface_interface plasma_surface_implementation = {
+	.destroy               = plasma_surface_destroy,
+	.set_output            = plasma_surface_set_output,
+	.set_position          = plasma_surface_set_position,
+	.set_role              = plasma_surface_set_role,
+	.set_panel_behavior    = plasma_surface_set_panel_behavior,
+	.set_skip_taskbar      = plasma_surface_set_skip_taskbar,
+	.panel_auto_hide_hide  = plasma_surface_panel_auto_hide_hide,
+	.panel_auto_hide_show  = plasma_surface_panel_auto_hide_show ,
+	.set_panel_takes_focus = plasma_surface_set_panel_takes_focus,
+	.set_skip_switcher     = plasma_surface_set_skip_switcher    ,
+	.open_under_cursor     = plasma_surface_open_under_cursor    
+};
+
+static struct plasma_shell *plasma_shell_from_resource(struct wl_resource *resource) {
+	assert(wl_resource_instance_of(
+		resource,
+		&org_kde_plasma_shell_interface,
+		&plasma_shell_implementation
+	));
+	return wl_resource_get_user_data(resource);
+}
+
+static void plasma_shell_get_surface(
+		struct wl_client *wl_client,
+		struct wl_resource *client_resource,
+		uint32_t id,
+		struct wl_resource *surface_resource
+) {
+	struct plasma_shell *shell = plasma_shell_from_resource(client_resource);
+	struct wlr_surface *wlr_surface = wlr_surface_from_resource(surface_resource);
+
+	struct plasma_surface *surface = calloc(1, sizeof(*surface));
+	if (surface == NULL) {
+		goto error;
+	}
+
+	surface->shell = shell;
+	surface->surface = wlr_surface;
+
+	surface->resource = wl_resource_create(
+		wl_client,
+		&org_kde_plasma_surface_interface,
+		wl_resource_get_version(client_resource),
+		id
+	);
+	if (surface->resource == NULL) {
+		goto error_surface;
+	}
+
+	wl_resource_set_implementation(
+		surface->resource,
+		&plasma_surface_implementation,
+		surface,
+		plasma_surface_resource_destroy
+	);
+
+	surface->parent_destroy.notify = plasma_surface_parent_destroy;
+	wl_signal_add(&wlr_surface->events.destroy, &surface->parent_destroy);
+
+	return;
+
+error_surface:
+	free(surface);
+error:
+	wl_client_post_no_memory(wl_client);
+}
+
+static const struct org_kde_plasma_shell_interface plasma_shell_implementation = {
+	.get_surface = plasma_shell_get_surface
+};
+
+static void plasma_shell_bind(struct wl_client *wl_client, void *data, uint32_t version, uint32_t id) {
+	struct plasma_shell *plasma_shell = data;
+
+	struct wl_resource *resource = wl_resource_create(
+		wl_client, &org_kde_plasma_shell_interface, version, id
+	);
+	if (resource == NULL) {
+		wl_client_post_no_memory(wl_client);
+		return;
+	}
+	wl_resource_set_implementation(
+		resource,
+		&plasma_shell_implementation,
+		plasma_shell,
+		NULL
+	);
+}
+
+static void plasma_shell_parent_destroy(struct wl_listener *listener, void *data) {
+	struct plasma_shell *plasma_shell = wl_container_of(
+		listener, plasma_shell, parent_destroy
+	);
+
+	wl_list_remove(&plasma_shell->parent_destroy.link);
+	wl_global_destroy(plasma_shell->global);
+	free(plasma_shell);
+}
+
+struct plasma_shell *plasma_shell_create(struct wl_display *display, uint32_t version) {
+	assert(version <= PLASMA_SHELL_VERSION);
+
+	struct plasma_shell *plasma_shell = calloc(1, sizeof(*plasma_shell));
+	if (!plasma_shell) {return NULL;}
+
+	struct wl_global *global = wl_global_create(
+		display,
+		&org_kde_plasma_shell_interface,
+		version,
+		plasma_shell,
+		plasma_shell_bind
+	);
+	if (!global) {
+		free(plasma_shell);
+		return NULL;
+	}
+	plasma_shell->global = global;
+
+	plasma_shell->parent_destroy.notify = plasma_shell_parent_destroy;
+	wl_display_add_destroy_listener(display, &plasma_shell->parent_destroy);
+
+	return plasma_shell;
+}

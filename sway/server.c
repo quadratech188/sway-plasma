@@ -58,6 +58,7 @@
 #include "log.h"
 #include "sway/config.h"
 #include "sway/desktop/idle_inhibit_v1.h"
+#include "desktop/plasma_shell.h"
 #include "sway/input/input-manager.h"
 #include "sway/output.h"
 #include "sway/server.h"
@@ -76,6 +77,7 @@
 
 #define SWAY_XDG_SHELL_VERSION 5
 #define SWAY_LAYER_SHELL_VERSION 5
+#define SWAY_PLASMA_SHELL_VERSION 8
 #define SWAY_FOREIGN_TOPLEVEL_LIST_VERSION 1
 #define SWAY_PRESENTATION_VERSION 2
 #define SWAY_XDG_DECORATION_VERSION 2
@@ -122,6 +124,7 @@ static bool is_privileged(const struct wl_global *global) {
 		global == server.security_context_manager_v1->global ||
 		global == server.gamma_control_manager_v1->global ||
 		global == server.layer_shell->global ||
+		// TODO: Figure out what this is
 		global == server.session_lock.manager->global ||
 		global == server.input->keyboard_shortcuts_inhibit->global ||
 		global == server.input->virtual_keyboard->global ||
@@ -367,6 +370,13 @@ bool server_init(struct sway_server *server) {
 	wl_signal_add(&server->layer_shell->events.new_surface,
 		&server->layer_shell_surface);
 	server->layer_shell_surface.notify = handle_layer_shell_surface;
+
+	server->plasma_shell = plasma_shell_create(server->wl_display,
+		SWAY_PLASMA_SHELL_VERSION);
+	if (!server->plasma_shell) {
+		sway_log(SWAY_ERROR, "Failed to create plasma shell");
+		return false;
+	}
 
 	server->xdg_shell = wlr_xdg_shell_create(server->wl_display,
 		SWAY_XDG_SHELL_VERSION);

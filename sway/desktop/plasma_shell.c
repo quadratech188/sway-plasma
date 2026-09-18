@@ -70,8 +70,7 @@ static void plasma_surface_set_position(
 	// If these are not initialized, position will be applied in view_map()
 	if (!view || !view->container) return;
 
-	if (view->container->current.x != view->container->pending.x
-		|| view->container->current.y != view->container->pending.y) {
+	if (view->container->resize_edge != WLR_EDGE_NONE) {
 		// Container is resizing, prevent jittering
 		return;
 	}

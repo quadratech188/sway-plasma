@@ -31,14 +31,13 @@ from gi.repository import GLib
 environment = [
     "WAYLAND_DISPLAY",
     "DISPLAY",
+    "XCURSOR_SIZE",
+    "XCURSOR_THEME"
 ]
 
-missing = [name for name in environment if not os.environ.get(name)]
+missing = [name for name in ['WAYLAND_DISPLAY', 'DISPLAY'] if not os.environ.get(name)]
 if missing:
     sys.exit(f"plasma-sway-ready: missing environment: {', '.join(missing)}")
-
-if os.environ.get("XAUTHORITY"):
-    environment.append("XAUTHORITY")
 
 subprocess.run(
     ["dbus-update-activation-environment", "--systemd", *environment],

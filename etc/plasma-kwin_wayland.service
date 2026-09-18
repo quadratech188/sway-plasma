@@ -1,0 +1,8 @@
+[Unit]
+Description=KDE Wayland Compositor
+PartOf=graphical-session.target
+
+[Service]
+ExecStart=/home/quadratech/Projects/sway-plasma/builddir/sway/sway --config /home/quadratech/Projects/sway-plasma/etc/config
+BusName=org.kde.KWinWrapper
+Slice=session.slice

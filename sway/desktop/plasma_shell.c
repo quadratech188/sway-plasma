@@ -28,8 +28,10 @@ static struct plasma_surface *plasma_surface_from_resource(struct wl_resource *r
 static void plasma_surface_resource_destroy(struct wl_resource *resource) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
 
-	wl_list_remove(&surface->link);
-	wl_list_remove(&surface->parent_destroy.link);
+	if (surface->surface != NULL) {
+		wl_list_remove(&surface->link);
+		wl_list_remove(&surface->parent_destroy.link);
+	}
 	free(surface);
 }
 
@@ -37,7 +39,15 @@ static void plasma_surface_parent_destroy(struct wl_listener *listener, void *da
 	struct plasma_surface *surface = wl_container_of(
 		listener, surface, parent_destroy
 	);
-	wl_resource_destroy(surface->resource);
+
+	// We consider this surface invalid, and remove it from the lookup list
+	wl_list_remove(&surface->link);
+	wl_list_remove(&surface->parent_destroy.link);
+	surface->surface = NULL;
+
+	// The XML spec says that the resource should be destroyed, but KWin doesn't do that.
+	// Doing so causes plasmashell crashes
+	// wl_resource_destroy(surface->resource);
 }
 
 static void plasma_surface_destroy(struct wl_client *client, struct wl_resource *resource) {
@@ -50,6 +60,7 @@ static void plasma_surface_set_output(
 	struct wl_resource *output
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_set_output(%p, _)", surface);
 }
 
@@ -60,6 +71,7 @@ static void plasma_surface_set_position(
 	int32_t y
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	if (!surface->surface) return;
 
 	struct sway_view *view = view_from_wlr_surface(surface->surface);
 
@@ -86,6 +98,7 @@ static void plasma_surface_set_role(
 	uint32_t role
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_set_role(%p, %d)", surface, role);
 }
 
@@ -95,6 +108,7 @@ static void plasma_surface_set_panel_behavior(
 	uint32_t flag
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_set_panel_behavior(%p, %d)", surface, flag);
 }
 
@@ -104,6 +118,7 @@ static void plasma_surface_set_skip_taskbar(
 	uint32_t skip
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_set_skip_taskbar(%p, %d)", surface, skip);
 }
 
@@ -112,6 +127,7 @@ static void plasma_surface_panel_auto_hide_hide(
 	struct wl_resource *resource
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_panel_auto_hide_hide(%p)", surface);
 }
 
@@ -120,6 +136,7 @@ static void plasma_surface_panel_auto_hide_show(
 	struct wl_resource *resource
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_panel_auto_hide_show(%p)", surface);
 }
 
@@ -129,6 +146,7 @@ static void plasma_surface_set_panel_takes_focus(
 	uint32_t takes_focus
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_set_panel_takes_focus(%p, %d)", surface, takes_focus);
 }
 
@@ -138,6 +156,7 @@ static void plasma_surface_set_skip_switcher(
 	uint32_t skip
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_set_skip_switcher(%p, %d)", surface, skip);
 }
 
@@ -146,6 +165,7 @@ static void plasma_surface_open_under_cursor(
 	struct wl_resource *resource
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
+	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_open_under_cursor(%p)", surface);
 }
 

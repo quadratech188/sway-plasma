@@ -1,47 +1,15 @@
-# sway-plasma
+# `sway-plasma`
 
-Sway, with some plasma protocols.
+## What's here
+- A partial implementation of KDE's [plasma-shell](https://wayland.app/protocols/kde-plasma-shell) wayland protocol in sway
 
-## Issues that also exist in KWin/Plasma
-- Using Alt+Right click on an applet allows you to move edges that should be anchored to the screen
+- Some other stuff in `etc/`
 
-(Original description below)
+## Usage
+Very unfriendly as of now.  
 
-### Compiling from Source
-
-Check out [this wiki page][Development setup] if you want to build the HEAD of
-sway and wlroots for testing or development.
-
-Install dependencies:
-
-* meson \*
-* [wlroots]
-* wayland
-* wayland-protocols \*
-* pcre2
-* json-c
-* pango
-* cairo
-* gdk-pixbuf2 (optional: additional image formats for system tray)
-* [swaybg] (optional: wallpaper)
-* [scdoc] (optional: man pages) \*
-* git (optional: version info) \*
-
-_\* Compile-time dep_
-
-Run these commands:
-
-    meson setup build/
-    ninja -C build/
-    sudo ninja -C build/ install
-
-## Configuration
-
-If you already use i3, then copy your i3 config to `~/.config/sway/config` and
-it'll work out of the box. Otherwise, copy the sample configuration file to
-`~/.config/sway/config`. It is usually located at `/etc/sway/config`.
-Run `man 5 sway` for information on the configuration.
-
-## Running
-
-Run `sway` from a TTY or from a display manager.
+1. Compile the sway fork.
+2. `sed -i1 's|/home/quadratech/Projects/sway-plasma|<REPO LOCATION>|g' etc/*`
+3. Create a new sway config, and in it source `./etc/sway-config`
+4. Install `./etc/plasma-kwin_wayland.service` as a systemd user unit.
+5. Select 'Plasma' from your display manager.

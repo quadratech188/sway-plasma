@@ -70,6 +70,13 @@ static void plasma_surface_set_position(
 	// If these are not initialized, position will be applied in view_map()
 	if (!view || !view->container) return;
 
+	if (view->container->current.x != view->container->pending.x
+		|| view->container->current.y != view->container->pending.y) {
+		// Container is resizing, prevent jittering
+		return;
+	}
+
+	sway_log(SWAY_DEBUG, "Set plasma position(immediate) %p: %d, %d", surface, x, y);
 	container_set_floating(view->container, true);
 	container_floating_move_to(view->container, x, y);
 }

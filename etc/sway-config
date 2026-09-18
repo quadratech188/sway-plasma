@@ -1,1 +1,3 @@
 exec plasmashell
+focus_follows_mouse no
+floating_modifier Alt normal

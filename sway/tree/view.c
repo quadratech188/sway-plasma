@@ -909,7 +909,7 @@ void view_map(struct sway_view *view, struct wlr_surface *wlr_surface,
 	struct plasma_surface *plasma = plasma_shell_find_plasma_surface(server.plasma_shell, view->surface);
 	if (plasma) {
 		if (plasma->position_set) {
-			sway_log(SWAY_DEBUG, "Set plasma position of %p: %d, %d", view, plasma->x, plasma->y);
+			sway_log(SWAY_DEBUG, "Set plasma position(view_map) %p: %d, %d", plasma, plasma->x, plasma->y);
 			container_set_floating(view->container, true);
 			container_floating_move_to(view->container, plasma->x, plasma->y);
 			goto skip_layout;

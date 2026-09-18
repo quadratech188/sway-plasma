@@ -1,5 +1,7 @@
 # `sway-plasma`
 
+![](./etc/screenshot.png)
+
 ## What's here
 - A partial implementation of KDE's [plasma-shell](https://wayland.app/protocols/kde-plasma-shell) wayland protocol in sway
 

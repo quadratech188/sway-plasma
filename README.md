@@ -12,4 +12,5 @@ Very unfriendly as of now.
 2. `sed -i1 's|/home/quadratech/Projects/sway-plasma|<REPO LOCATION>|g' etc/*`
 3. Create a new sway config, and in it source `./etc/sway-config`
 4. Install `./etc/plasma-kwin_wayland.service` as a systemd user unit.
-5. Select 'Plasma' from your display manager.
+5. Install `./etc/kde-portals.conf` to `~/.config/xdg-desktop-portal/`
+6. Select 'Plasma' from your display manager.

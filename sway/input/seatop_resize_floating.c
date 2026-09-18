@@ -29,6 +29,7 @@ static void handle_button(struct sway_seat *seat, uint32_t time_msec,
 		arrange_container(con); // Send configure w/o resizing hint
 		transaction_commit_dirty();
 		seatop_begin_default(seat);
+		con->resize_edge = WLR_EDGE_NONE;
 	}
 }
 
@@ -180,6 +181,8 @@ void seatop_begin_resize_floating(struct sway_seat *seat,
 	e->ref_con_ly = con->pending.y;
 	e->ref_width = con->pending.width;
 	e->ref_height = con->pending.height;
+
+	con->resize_edge = e->edge;
 
 	seat->seatop_impl = &seatop_impl;
 	seat->seatop_data = e;

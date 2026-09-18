@@ -6,6 +6,7 @@
 #include <wlr/types/wlr_scene.h>
 #include "list.h"
 #include "sway/tree/node.h"
+#include "wlr/util/edges.h"
 
 struct sway_view;
 struct sway_seat;
@@ -96,6 +97,8 @@ struct sway_container {
 
 	struct sway_container_state current;
 	struct sway_container_state pending;
+
+	enum wlr_edges resize_edge;
 
 	char *title;           // The view's title (unformatted)
 	int title_width;

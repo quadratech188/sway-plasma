@@ -1,3 +1,4 @@
+#include "wlr/util/edges.h"
 #include <stdlib.h>
 #include <strings.h>
 #include <wayland-server-core.h>
@@ -1037,6 +1038,13 @@ void view_unmap(struct sway_view *view) {
 
 void view_update_size(struct sway_view *view) {
 	struct sway_container *con = view->container;
+	if (con->resize_edge & WLR_EDGE_LEFT) {
+		con->pending.content_x += (con->pending.content_width - view->geometry.width);
+	}
+	if (con->resize_edge & WLR_EDGE_TOP) {
+		con->pending.content_y += (con->pending.content_height - view->geometry.height);
+	}
+
 	con->pending.content_width = view->geometry.width;
 	con->pending.content_height = view->geometry.height;
 	container_set_geometry_from_content(con);

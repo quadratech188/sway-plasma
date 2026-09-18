@@ -909,10 +909,7 @@ void view_map(struct sway_view *view, struct wlr_surface *wlr_surface,
 
 	struct plasma_surface *plasma = plasma_shell_find_plasma_surface(server.plasma_shell, view->surface);
 	if (plasma) {
-		if (plasma->position_set) {
-			sway_log(SWAY_DEBUG, "Set plasma position(view_map) %p: %d, %d", plasma, plasma->x, plasma->y);
-			container_set_floating(view->container, true);
-			container_floating_move_to(view->container, plasma->x, plasma->y);
+		if (plasma_surface_apply_position(plasma, view->container)) {
 			goto skip_layout;
 		}
 	}
@@ -956,6 +953,7 @@ skip_layout:
 
 	bool set_focus = should_focus(view);
 
+
 #if WLR_HAS_XWAYLAND
 	struct wlr_xwayland_surface *xsurface;
 	if ((xsurface = wlr_xwayland_surface_try_from_wlr_surface(wlr_surface))) {
@@ -963,6 +961,10 @@ skip_layout:
 				WLR_ICCCM_INPUT_MODEL_NONE;
 	}
 #endif
+
+	if (plasma) {
+		set_focus &= plasma_surface_can_take_focus(plasma);
+	}
 
 	if (set_focus) {
 		input_manager_set_focus(&view->container->node);

@@ -8,8 +8,11 @@
 #include "plasma_shell.h"
 #include "log.h"
 #include "plasma-shell-protocol.h"
+#include "sway/input/input-manager.h"
+#include "sway/input/seat.h"
 #include "sway/tree/container.h"
 #include "sway/tree/view.h"
+#include "sway/tree/workspace.h"
 
 #define PLASMA_SHELL_VERSION 8
 
@@ -64,6 +67,58 @@ static void plasma_surface_set_output(
 	sway_log(SWAY_INFO, "STUB: plasma_surface_set_output(%p, _)", surface);
 }
 
+bool plasma_surface_apply_position(
+	struct plasma_surface *surface,
+	struct sway_container *container
+) {
+	bool updated = false;
+
+	struct sway_seat *seat = input_manager_current_seat();
+	struct sway_workspace *workspace = seat_get_focused_workspace(seat);
+
+	if (!workspace) return updated;
+
+	// https://github.com/KDE/kwin/blob/38faf84c3b25a90ca3eb3f5f18476c048a9ff877/src/placement.cpp#L34-L56
+	switch (surface->role) {
+		case ORG_KDE_PLASMA_SURFACE_ROLE_ONSCREENDISPLAY:
+		case ORG_KDE_PLASMA_SURFACE_ROLE_NOTIFICATION:
+		case ORG_KDE_PLASMA_SURFACE_ROLE_CRITICALNOTIFICATION:
+			container_set_floating(container, true);
+			sway_log(SWAY_DEBUG, "Move plasma surface %p to lower-center", surface);
+			container_floating_move_to(
+				container,
+				(double)workspace->width / 2 - container->pending.width / 2,
+				2 * (double)workspace->height / 3 - container->pending.height / 2
+			);
+			updated = true;
+			break;
+
+		default:
+			break;
+	}
+
+	if (surface->position_set) {
+		container_set_floating(container, true);
+		sway_log(
+			SWAY_DEBUG, "Move plasma surface %p to %d, %d",
+			surface, surface->x, surface->y
+		);
+		container_floating_move_to(container, surface->x, surface->y);
+		updated = true;
+	}
+	return updated;
+}
+
+bool plasma_surface_can_take_focus(struct plasma_surface *surface) {
+	switch (surface->role) {
+		case ORG_KDE_PLASMA_SURFACE_ROLE_NORMAL:
+		case ORG_KDE_PLASMA_SURFACE_ROLE_APPLETPOPUP:
+			return true;
+		default:
+			return false;
+	}
+}
+
 static void plasma_surface_set_position(
 	struct wl_client *client,
 	struct wl_resource *resource,
@@ -73,23 +128,13 @@ static void plasma_surface_set_position(
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
 	if (!surface->surface) return;
 
-	struct sway_view *view = view_from_wlr_surface(surface->surface);
-
 	surface->position_set = true;
 	surface->x = x;
 	surface->y = y;
 
-	// If these are not initialized, position will be applied in view_map()
+	struct sway_view *view = view_from_wlr_surface(surface->surface);
 	if (!view || !view->container) return;
-
-	if (view->container->resize_edge != WLR_EDGE_NONE) {
-		// Container is resizing, prevent jittering
-		return;
-	}
-
-	sway_log(SWAY_DEBUG, "Set plasma position(immediate) %p: %d, %d", surface, x, y);
-	container_set_floating(view->container, true);
-	container_floating_move_to(view->container, x, y);
+	plasma_surface_apply_position(surface, view->container);
 }
 
 static void plasma_surface_set_role(
@@ -99,7 +144,12 @@ static void plasma_surface_set_role(
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
 	if (!surface->surface) return;
-	sway_log(SWAY_INFO, "STUB: plasma_surface_set_role(%p, %d)", surface, role);
+
+	surface->role = role;
+
+	struct sway_view *view = view_from_wlr_surface(surface->surface);
+	if (!view || !view->container) return;
+	plasma_surface_apply_position(surface, view->container);
 }
 
 static void plasma_surface_set_panel_behavior(

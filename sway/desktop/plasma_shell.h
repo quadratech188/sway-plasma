@@ -1,3 +1,5 @@
+#include "plasma-shell-protocol.h"
+#include "sway/tree/container.h"
 #include <wayland-server-core.h>
 
 struct plasma_shell {
@@ -17,6 +19,8 @@ struct plasma_surface {
 	struct wlr_surface *surface;
 	struct wl_resource *resource;
 
+	enum org_kde_plasma_surface_role role;
+
 	int32_t x;
 	int32_t y;
 	bool position_set;
@@ -28,3 +32,10 @@ struct plasma_surface *plasma_shell_find_plasma_surface(
 	struct plasma_shell *shell,
 	struct wlr_surface *surface
 );
+
+bool plasma_surface_apply_position(
+	struct plasma_surface *surface,
+	struct sway_container *container
+);
+
+bool plasma_surface_can_take_focus(struct plasma_surface *surface);

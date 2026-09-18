@@ -31,6 +31,8 @@ from gi.repository import GLib
 environment = [
     "WAYLAND_DISPLAY",
     "DISPLAY",
+    "I3SOCK",
+    "SWAYSOCK",
     "XCURSOR_SIZE",
     "XCURSOR_THEME"
 ]

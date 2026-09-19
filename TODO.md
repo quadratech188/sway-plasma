@@ -1,1 +1,3 @@
 - [ ] Wire up Logout button
+- [ ] Debug widget resize lag
+- [ ] Debug picture-in-picture resize flicker

@@ -909,7 +909,7 @@ void view_map(struct sway_view *view, struct wlr_surface *wlr_surface,
 
 	struct plasma_surface *plasma = plasma_shell_find_plasma_surface(server.plasma_shell, view->surface);
 	if (plasma) {
-		if (plasma_surface_apply_position(plasma, view->container)) {
+		if (plasma_surface_configure_container(plasma, view->container)) {
 			goto skip_layout;
 		}
 	}

@@ -67,7 +67,7 @@ static void plasma_surface_set_output(
 	sway_log(SWAY_INFO, "STUB: plasma_surface_set_output(%p, _)", surface);
 }
 
-bool plasma_surface_apply_position(
+bool plasma_surface_configure_container(
 	struct plasma_surface *surface,
 	struct sway_container *container
 ) {
@@ -93,6 +93,27 @@ bool plasma_surface_apply_position(
 			updated = true;
 			break;
 
+		default:
+			break;
+	}
+
+	switch (surface->role) {
+		case ORG_KDE_PLASMA_SURFACE_ROLE_APPLETPOPUP:
+			container_set_layer(container, LAYER_ABOVE);
+			updated = true;
+			break;
+		case ORG_KDE_PLASMA_SURFACE_ROLE_ONSCREENDISPLAY:
+			container_set_layer(container, LAYER_ON_SCREEN_DISPLAY);
+			updated = true;
+			break;
+		case ORG_KDE_PLASMA_SURFACE_ROLE_NOTIFICATION:
+			container_set_layer(container, LAYER_NOTIFICATION);
+			updated = true;
+			break;
+		case ORG_KDE_PLASMA_SURFACE_ROLE_CRITICALNOTIFICATION:
+			container_set_layer(container, LAYER_CRIT_NOTIFICATION);
+			updated = true;
+			break;
 		default:
 			break;
 	}
@@ -143,7 +164,7 @@ static void plasma_surface_set_position(
 
 	struct sway_view *view = view_from_wlr_surface(surface->surface);
 	if (!view || !view->container) return;
-	plasma_surface_apply_position(surface, view->container);
+	plasma_surface_configure_container(surface, view->container);
 }
 
 static void plasma_surface_set_role(
@@ -158,7 +179,7 @@ static void plasma_surface_set_role(
 
 	struct sway_view *view = view_from_wlr_surface(surface->surface);
 	if (!view || !view->container) return;
-	plasma_surface_apply_position(surface, view->container);
+	plasma_surface_configure_container(surface, view->container);
 }
 
 static void plasma_surface_set_panel_behavior(

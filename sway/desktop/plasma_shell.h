@@ -33,7 +33,7 @@ struct plasma_surface *plasma_shell_find_plasma_surface(
 	struct wlr_surface *surface
 );
 
-bool plasma_surface_apply_position(
+bool plasma_surface_configure_container(
 	struct plasma_surface *surface,
 	struct sway_container *container
 );

@@ -97,17 +97,22 @@ bool plasma_surface_apply_position(
 			break;
 	}
 
-	if (surface->position_set) {
+	if (surface->role != ORG_KDE_PLASMA_SURFACE_ROLE_NORMAL) {
+		container->is_sticky = true;
+	}
+
+	// Only set position when not resizing
+	if (surface->position_set && container->resize_edge == WLR_EDGE_NONE) {
 		container_set_floating(container, true);
 		sway_log(
 			SWAY_DEBUG, "Move plasma surface %p to %d, %d",
 			surface, surface->x, surface->y
 		);
-			container_floating_translate(
-				container,
-				surface->x - container->pending.x,
-				surface->y - container->pending.y
-			);
+		container_floating_translate(
+			container,
+			surface->x - container->pending.x,
+			surface->y - container->pending.y
+		);
 		updated = true;
 	}
 	return updated;

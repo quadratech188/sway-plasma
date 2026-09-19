@@ -32,6 +32,13 @@ enum sway_fullscreen_mode {
 	FULLSCREEN_GLOBAL,
 };
 
+enum sway_container_layer {
+	LAYER_FLOATING = 0,
+	LAYER_NOTIFICATION,
+	LAYER_CRIT_NOTIFICATION,
+	LAYER_ON_SCREEN_DISPLAY
+};
+
 struct sway_root;
 struct sway_output;
 struct sway_workspace;
@@ -46,6 +53,7 @@ struct sway_container_state {
 	double width, height;
 
 	enum sway_fullscreen_mode fullscreen_mode;
+	enum sway_container_layer layer;
 
 	struct sway_workspace *workspace; // NULL when hidden in the scratchpad
 	struct sway_container *parent;    // NULL if container in root of workspace
@@ -214,6 +222,8 @@ void container_set_resizing(struct sway_container *con, bool resizing);
 void container_set_floating(struct sway_container *container, bool enable);
 
 void container_set_geometry_from_content(struct sway_container *con);
+
+void container_set_layer(struct sway_container *con, enum sway_container_layer layer);
 
 /**
  * Determine if the given container is itself floating.

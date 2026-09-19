@@ -45,11 +45,14 @@ struct sway_root *root_create(struct wl_display *wl_display) {
 	root->layers.tiling = alloc_scene_tree(root->layer_tree, &failed);
 	root->layers.floating = alloc_scene_tree(root->layer_tree, &failed);
 	root->layers.shell_top = alloc_scene_tree(root->layer_tree, &failed);
+	root->layers.notification = alloc_scene_tree(root->layer_tree, &failed);
 	root->layers.fullscreen = alloc_scene_tree(root->layer_tree, &failed);
 	root->layers.fullscreen_global = alloc_scene_tree(root->layer_tree, &failed);
 #if WLR_HAS_XWAYLAND
 	root->layers.unmanaged = alloc_scene_tree(root->layer_tree, &failed);
 #endif
+	root->layers.crit_notification = alloc_scene_tree(root->layer_tree, &failed);
+	root->layers.on_screen_display = alloc_scene_tree(root->layer_tree, &failed);
 	root->layers.shell_overlay = alloc_scene_tree(root->layer_tree, &failed);
 	root->layers.popup = alloc_scene_tree(root->layer_tree, &failed);
 	root->layers.seat = alloc_scene_tree(root->layer_tree, &failed);
@@ -84,6 +87,21 @@ void root_destroy(struct sway_root *root) {
 	list_free(root->outputs);
 	wlr_scene_node_destroy(&root->root_scene->tree.node);
 	free(root);
+}
+
+struct wlr_scene_tree *root_get_container_layer_tree(enum sway_container_layer layer) {
+	switch (layer) {
+		case LAYER_FLOATING:
+			return root->layers.floating;
+		case LAYER_NOTIFICATION:
+			return root->layers.notification;
+		case LAYER_CRIT_NOTIFICATION:
+			return root->layers.crit_notification;
+		case LAYER_ON_SCREEN_DISPLAY:
+			return root->layers.on_screen_display;
+	}
+	sway_assert(false, "Unknown value for sway_container_layer");
+	return NULL;
 }
 
 static void set_container_transform(struct sway_workspace *ws,

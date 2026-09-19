@@ -17,6 +17,7 @@
 #include "sway/output.h"
 #include "sway/server.h"
 #include "sway/tree/arrange.h"
+#include "sway/tree/node.h"
 #include "sway/tree/view.h"
 #include "sway/tree/workspace.h"
 #include "sway/xdg_decoration.h"
@@ -1049,6 +1050,12 @@ void container_set_geometry_from_content(struct sway_container *con) {
 	con->pending.y = con->pending.content_y - top;
 	con->pending.width = con->pending.content_width + border_width * 2;
 	con->pending.height = top + con->pending.content_height + border_width;
+	node_set_dirty(&con->node);
+}
+
+void container_set_layer(struct sway_container *con, enum sway_container_layer layer) {
+	if (con->pending.layer == layer) return;
+	con->pending.layer = layer;
 	node_set_dirty(&con->node);
 }
 

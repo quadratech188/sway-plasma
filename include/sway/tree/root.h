@@ -33,6 +33,20 @@ struct sway_root {
 	// staging node will be visible.
 	struct wlr_scene_tree *staging;
 
+	// KWin's layers are:
+	// - Desktop              (Layer shell background) ->       shell_background
+	// - Below                (Layer shell bottom)     ->       shell_bottom
+	// - Normal                                        ->       tiling, floating
+	// - Above                (Layer shell top)        ->       shell_top
+	// - Notification                                  -> (NEW) notification
+	// - Active                                        ->       fullscreen
+	// - Popup                                         ->       popup (In sway this is above shell_overlay,
+	//                                                                 in contrast to KWin where it is below.
+	//                                                                 Maintain existing behavior for now)
+	// - CriticalNotification                          -> (NEW) crit_notification
+	// - OnScreenDisplay                               -> (NEW) on_screen_display
+	// - Overlay              (Layer shell overlay)    ->       shell_overlay
+	
 	// tree containing all layers the compositor will render. Cursor handling
 	// will end up iterating this tree.
 	struct wlr_scene_tree *layer_tree;
@@ -43,11 +57,15 @@ struct sway_root {
 		struct wlr_scene_tree *tiling;
 		struct wlr_scene_tree *floating;
 		struct wlr_scene_tree *shell_top;
+		struct wlr_scene_tree *notification;
 		struct wlr_scene_tree *fullscreen;
 		struct wlr_scene_tree *fullscreen_global;
 #if WLR_HAS_XWAYLAND
 		struct wlr_scene_tree *unmanaged;
 #endif
+
+		struct wlr_scene_tree *crit_notification;
+		struct wlr_scene_tree *on_screen_display;
 		struct wlr_scene_tree *shell_overlay;
 		struct wlr_scene_tree *popup;
 		struct wlr_scene_tree *seat;
@@ -77,6 +95,8 @@ struct sway_root {
 struct sway_root *root_create(struct wl_display *display);
 
 void root_destroy(struct sway_root *root);
+
+struct wlr_scene_tree *root_get_container_layer_tree(enum sway_container_layer layer);
 
 /**
  * Move a container to the scratchpad.

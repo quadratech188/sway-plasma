@@ -13,6 +13,7 @@
 #include "sway/server.h"
 #include "sway/tree/container.h"
 #include "sway/tree/node.h"
+#include "sway/tree/root.h"
 #include "sway/tree/view.h"
 #include "sway/tree/workspace.h"
 #include "list.h"
@@ -535,7 +536,8 @@ static void arrange_fullscreen(struct wlr_scene_tree *tree,
 static void arrange_workspace_floating(struct sway_workspace *ws) {
 	for (int i = 0; i < ws->current.floating->length; i++) {
 		struct sway_container *floater = ws->current.floating->items[i];
-		struct wlr_scene_tree *layer = root->layers.floating;
+
+		struct wlr_scene_tree *layer = root_get_container_layer_tree(floater->current.layer);
 
 		if (floater->current.fullscreen_mode != FULLSCREEN_NONE) {
 			continue;
@@ -588,7 +590,10 @@ static void disable_workspace(struct sway_workspace *ws) {
 
 	for (int i = 0; i < ws->current.floating->length; i++) {
 		struct sway_container *floater = ws->current.floating->items[i];
-		wlr_scene_node_reparent(&floater->scene_tree->node, root->layers.floating);
+		wlr_scene_node_reparent(
+			&floater->scene_tree->node,
+			root_get_container_layer_tree(floater->current.layer)
+		);
 		disable_container(floater);
 		wlr_scene_node_set_enabled(&floater->scene_tree->node, false);
 	}
@@ -605,7 +610,10 @@ static void arrange_output(struct sway_output *output, int width, int height) {
 
 		for (int i = 0; i < child->current.floating->length; i++) {
 			struct sway_container *floater = child->current.floating->items[i];
-			wlr_scene_node_reparent(&floater->scene_tree->node, root->layers.floating);
+			wlr_scene_node_reparent(
+				&floater->scene_tree->node,
+				root_get_container_layer_tree(floater->current.layer)
+			);
 			wlr_scene_node_set_enabled(&floater->scene_tree->node, activated);
 		}
 
@@ -669,6 +677,7 @@ static void arrange_root(struct sway_root *root) {
 	wlr_scene_node_set_enabled(&root->layers.tiling->node, !fs);
 	wlr_scene_node_set_enabled(&root->layers.floating->node, !fs);
 	wlr_scene_node_set_enabled(&root->layers.shell_top->node, !fs);
+	wlr_scene_node_set_enabled(&root->layers.notification->node, !fs);
 	wlr_scene_node_set_enabled(&root->layers.fullscreen->node, !fs);
 
 	// hide all contents in the scratchpad

@@ -1,6 +1,7 @@
-use std::collections::{HashMap, hash_map};
+use std::{collections::{HashMap, HashSet, hash_map}, sync::Arc};
 
 use futures_util::StreamExt;
+use tokio::sync::Mutex;
 
 #[zbus::proxy(
     interface       = "org.kde.Solid.PowerManagement.PolicyAgent",
@@ -14,47 +15,72 @@ trait PolicyAgent {
 
 const CHANGE_SCREEN_SETTINGS: u32 = 4;
 
-struct ScreenSaver {
+struct ScreenSaverState {
     policy_agent: PolicyAgentProxy<'static>,
-    known_names: HashMap<zbus::names::UniqueName<'static>, Vec<u32>>
+    known_names: HashMap<zbus::names::UniqueName<'static>, HashSet<u32>>
+}
+
+struct ScreenSaver {
+    state: Arc<Mutex<ScreenSaverState>>
 }
 
 #[zbus::interface(name = "org.freedesktop.ScreenSaver")]
 impl ScreenSaver {
     async fn inhibit(
-        &mut self, name: &str, reason: &str,
+        &self, name: &str, reason: &str,
         #[zbus(header)] header: zbus::message::Header<'_>,
     ) -> zbus::fdo::Result<u32> {
-        let cookie = self.policy_agent.add_inhibition(CHANGE_SCREEN_SETTINGS, name, reason).await?;
+        let policy_agent = { self.state.lock().await.policy_agent.clone() };
 
-        match self.known_names.entry(header.sender().unwrap().to_owned()) {
-            hash_map::Entry::Vacant  (x) => {x.insert(vec![cookie]);},
-            hash_map::Entry::Occupied(mut x) => x.get_mut().push(cookie),
-        };
+        let cookie = policy_agent.add_inhibition(CHANGE_SCREEN_SETTINGS, name, reason).await?;
 
+        let mut state = self.state.lock().await;
+        state.known_names.entry(header.sender().unwrap().to_owned())
+            .or_default().insert(cookie);
         Ok(cookie)
     }
 
-    async fn uninhibit(&mut self, cookie: u32) -> zbus::fdo::Result<()> {
-        Ok(self.policy_agent.release_inhibition(cookie).await?)
+    async fn uninhibit(
+        &self, cookie: u32,
+        #[zbus(header)] header: zbus::message::Header<'_>,
+    ) -> zbus::fdo::Result<()> {
+
+        let policy_agent = {
+            let mut this = self.state.lock().await;
+
+            let result = match this.known_names.entry(header.sender().unwrap().to_owned()) {
+                hash_map::Entry::Vacant(_) => false,
+                hash_map::Entry::Occupied(mut x) => {
+                    let result = x.get_mut().remove(&cookie);
+                    if x.get().is_empty() {x.remove();}
+                    result
+                }
+            };
+            if !result {
+                return Err(zbus::fdo::Error::InvalidArgs(
+                    "Cookie not associated with sender".into(),
+                ));
+            }
+            this.policy_agent.clone()
+        };
+
+        Ok(policy_agent.release_inhibition(cookie).await?)
     }
 }
 
 async fn handle_event(
-    conn: &zbus::Connection,
-    policy_agent: &PolicyAgentProxy<'static>,
+    screensaver: &Arc<Mutex<ScreenSaverState>>,
     event: zbus::fdo::NameOwnerChanged
 ) -> anyhow::Result<()> {
     let args = event.args()?;
     let None = *args.new_owner else {return Ok(())};
-
-    let screensaver = conn.object_server()
-        .interface::<_, ScreenSaver>("/org/freedesktop/ScreenSaver").await?;
-    let mut screensaver = screensaver.get_mut().await;
-
     let Ok(unique_name) = zbus::names::UniqueName::try_from(args.name) else {return Ok(())};
 
-    let Some(cookies) = screensaver.known_names.remove(unique_name.as_str()) else {return Ok(())};
+    let (policy_agent, cookies) = {
+        let mut screensaver = screensaver.lock().await;
+        let Some(cookies) = screensaver.known_names.remove(unique_name.as_str()) else {return Ok(())};
+        (screensaver.policy_agent.clone(), cookies)
+    };
 
     for cookie in cookies {
         policy_agent.release_inhibition(cookie).await?;
@@ -70,19 +96,22 @@ async fn main() -> anyhow::Result<()> {
 
     let policy_agent = PolicyAgentProxy::new(&conn).await?;
 
-    let screensaver = ScreenSaver {
-        policy_agent: policy_agent.clone(),
+    let state = Arc::new(Mutex::new(ScreenSaverState {
+        policy_agent: policy_agent,
         known_names: HashMap::new()
-    };
+    }));
+
     conn.object_server()
-        .at("/org/freedesktop/ScreenSaver", screensaver).await?;
+        .at("/org/freedesktop/ScreenSaver", ScreenSaver { state: state.clone() }).await?;
+    conn.object_server()
+        .at("/ScreenSaver", ScreenSaver { state: state.clone() }).await?;
 
     let dbus = zbus::fdo::DBusProxy::new(&conn).await?;
 
     let mut stream = dbus.receive_name_owner_changed().await?;
 
     while let Some(event) = stream.next().await {
-        if let Err(e) = handle_event(&conn, &policy_agent, event).await {
+        if let Err(e) = handle_event(&state, event).await {
             println!("Error while handling NameOwnerChanged: {e}")
         }
     }

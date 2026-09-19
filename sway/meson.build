@@ -1,257 +1,248 @@
-sway_sources = files(
-	'commands.c',
-	'config.c',
-	'criteria.c',
-	'decoration.c',
-	'ipc-json.c',
-	'ipc-server.c',
-	'lock.c',
-	'main.c',
-	'realtime.c',
-	'scene_descriptor.c',
-	'server.c',
-	'sway_text_node.c',
-	'swaynag.c',
-	'xdg_activation_v1.c',
-	'xdg_decoration.c',
-
-	'desktop/idle_inhibit_v1.c',
-	'desktop/layer_shell.c',
-	'desktop/plasma_shell.c',
-	'desktop/output.c',
-	'desktop/tearing.c',
-	'desktop/transaction.c',
-	'desktop/xdg_shell.c',
-	'desktop/launcher.c',
-
-	'input/input-manager.c',
-	'input/cursor.c',
-	'input/keyboard.c',
-	'input/seat.c',
-	'input/seatop_default.c',
-	'input/seatop_down.c',
-	'input/seatop_move_floating.c',
-	'input/seatop_move_tiling.c',
-	'input/seatop_resize_floating.c',
-	'input/seatop_resize_tiling.c',
-	'input/switch.c',
-	'input/tablet.c',
-	'input/text_input.c',
-
-	'config/bar.c',
-	'config/output.c',
-	'config/seat.c',
-	'config/input.c',
-
-	'commands/allow_tearing.c',
-	'commands/assign.c',
-	'commands/bar.c',
-	'commands/bind.c',
-	'commands/border.c',
-	'commands/client.c',
-	'commands/create_output.c',
-	'commands/default_border.c',
-	'commands/default_floating_border.c',
-	'commands/default_orientation.c',
-	'commands/exit.c',
-	'commands/exec.c',
-	'commands/exec_always.c',
-	'commands/floating.c',
-	'commands/floating_minmax_size.c',
-	'commands/floating_modifier.c',
-	'commands/focus.c',
-	'commands/focus_follows_mouse.c',
-	'commands/focus_on_window_activation.c',
-	'commands/focus_wrapping.c',
-	'commands/font.c',
-	'commands/for_window.c',
-	'commands/force_display_urgency_hint.c',
-	'commands/force_focus_wrapping.c',
-	'commands/fullscreen.c',
-	'commands/gaps.c',
-	'commands/gesture.c',
-	'commands/hide_edge_borders.c',
-	'commands/inhibit_idle.c',
-	'commands/kill.c',
-	'commands/mark.c',
-	'commands/max_render_time.c',
-	'commands/opacity.c',
-	'commands/include.c',
-	'commands/input.c',
-	'commands/layout.c',
-	'commands/mode.c',
-	'commands/mouse_warping.c',
-	'commands/move.c',
-	'commands/new_float.c',
-	'commands/new_window.c',
-	'commands/no_focus.c',
-	'commands/nop.c',
-	'commands/output.c',
-	'commands/popup_during_fullscreen.c',
-	'commands/primary_selection.c',
-	'commands/reload.c',
-	'commands/rename.c',
-	'commands/resize.c',
-	'commands/scratchpad.c',
-	'commands/seat.c',
-	'commands/seat/attach.c',
-	'commands/seat/cursor.c',
-	'commands/seat/fallback.c',
-	'commands/seat/hide_cursor.c',
-	'commands/seat/idle.c',
-	'commands/seat/keyboard_grouping.c',
-	'commands/seat/pointer_constraint.c',
-	'commands/seat/shortcuts_inhibitor.c',
-	'commands/seat/xcursor_theme.c',
-	'commands/set.c',
-	'commands/show_marks.c',
-	'commands/shortcuts_inhibitor.c',
-	'commands/smart_borders.c',
-	'commands/smart_gaps.c',
-	'commands/split.c',
-	'commands/sticky.c',
-	'commands/swaybg_command.c',
-	'commands/swaynag_command.c',
-	'commands/swap.c',
-	'commands/tiling_drag.c',
-	'commands/tiling_drag_threshold.c',
-	'commands/title_align.c',
-	'commands/title_format.c',
-	'commands/titlebar_border_thickness.c',
-	'commands/titlebar_padding.c',
-	'commands/unmark.c',
-	'commands/urgent.c',
-	'commands/workspace.c',
-	'commands/workspace_layout.c',
-	'commands/ws_auto_back_and_forth.c',
-	'commands/xwayland.c',
-
-	'commands/bar/bind.c',
-	'commands/bar/binding_mode_indicator.c',
-	'commands/bar/colors.c',
-	'commands/bar/font.c',
-	'commands/bar/gaps.c',
-	'commands/bar/height.c',
-	'commands/bar/hidden_state.c',
-	'commands/bar/icon_theme.c',
-	'commands/bar/id.c',
-	'commands/bar/mode.c',
-	'commands/bar/modifier.c',
-	'commands/bar/output.c',
-	'commands/bar/pango_markup.c',
-	'commands/bar/position.c',
-	'commands/bar/separator_symbol.c',
-	'commands/bar/status_command.c',
-	'commands/bar/status_edge_padding.c',
-	'commands/bar/status_padding.c',
-	'commands/bar/strip_workspace_numbers.c',
-	'commands/bar/strip_workspace_name.c',
-	'commands/bar/swaybar_command.c',
-	'commands/bar/tray_bind.c',
-	'commands/bar/tray_output.c',
-	'commands/bar/tray_padding.c',
-	'commands/bar/workspace_buttons.c',
-	'commands/bar/workspace_min_width.c',
-	'commands/bar/wrap_scroll.c',
-
-	'commands/input/accel_profile.c',
-	'commands/input/calibration_matrix.c',
-	'commands/input/click_method.c',
-	'commands/input/clickfinger_button_map.c',
-	'commands/input/three_finger_drag.c',
-	'commands/input/drag.c',
-	'commands/input/drag_lock.c',
-	'commands/input/dwt.c',
-	'commands/input/dwtp.c',
-	'commands/input/events.c',
-	'commands/input/left_handed.c',
-	'commands/input/map_from_region.c',
-	'commands/input/map_to_output.c',
-	'commands/input/map_to_region.c',
-	'commands/input/middle_emulation.c',
-	'commands/input/natural_scroll.c',
-	'commands/input/pointer_accel.c',
-        'commands/input/rotation_angle.c',
-	'commands/input/repeat_delay.c',
-	'commands/input/repeat_rate.c',
-	'commands/input/scroll_button.c',
-	'commands/input/scroll_button_lock.c',
-	'commands/input/scroll_factor.c',
-	'commands/input/scroll_method.c',
-	'commands/input/tap.c',
-	'commands/input/tap_button_map.c',
-	'commands/input/tool_mode.c',
-	'commands/input/xkb_capslock.c',
-	'commands/input/xkb_file.c',
-	'commands/input/xkb_layout.c',
-	'commands/input/xkb_model.c',
-	'commands/input/xkb_numlock.c',
-	'commands/input/xkb_options.c',
-	'commands/input/xkb_rules.c',
-	'commands/input/xkb_switch_layout.c',
-	'commands/input/xkb_variant.c',
-
-	'commands/output/adaptive_sync.c',
-	'commands/output/allow_tearing.c',
-	'commands/output/background.c',
-	'commands/output/disable.c',
-	'commands/output/dpms.c',
-	'commands/output/enable.c',
-	'commands/output/hdr.c',
-	'commands/output/max_render_time.c',
-	'commands/output/mode.c',
-	'commands/output/position.c',
-	'commands/output/power.c',
-	'commands/output/render_bit_depth.c',
-	'commands/output/scale.c',
-	'commands/output/scale_filter.c',
-	'commands/output/subpixel.c',
-	'commands/output/toggle.c',
-	'commands/output/transform.c',
-	'commands/output/unplug.c',
-	'commands/output/color_profile.c',
-
-	'tree/arrange.c',
-	'tree/container.c',
-	'tree/node.c',
-	'tree/root.c',
-	'tree/view.c',
-	'tree/workspace.c',
-	'tree/output.c',
-)
-
-sway_deps = [
-	cairo,
-	drm,
-	jsonc,
-	libevdev,
-	libinput,
-	libudev,
-	math,
-	pango,
-	pcre2,
-	pixman,
-	threads,
-	wayland_server,
-	wlroots,
-	xkbcommon,
-	xcb,
-	xcb_icccm,
-]
-
-if wlroots_features['xwayland']
-	sway_sources += 'desktop/xwayland.c'
-endif
-
-if wlroots_features['libinput_backend']
-	sway_sources += 'input/libinput.c'
-endif
-
-executable(
+project(
 	'sway',
-	sway_sources + wl_protos_src,
-	include_directories: [sway_inc],
-	dependencies: sway_deps,
-	link_with: [lib_sway_common],
-	install: true
+	'c',
+	version: '1.13-dev',
+	license: 'MIT',
+	meson_version: '>=1.3',
+	default_options: [
+		'c_std=c11',
+		'warning_level=2',
+		'werror=true',
+		'wrap_mode=nodownload',
+	],
 )
+
+add_project_arguments(
+	[
+		'-DWLR_USE_UNSTABLE',
+		'-D_POSIX_C_SOURCE=200809L',
+
+		'-Wno-unused-parameter',
+		'-Wno-unused-result',
+		'-Wno-missing-braces',
+		'-Wno-format-zero-length',
+		'-Wundef',
+		'-Wvla',
+	],
+	language: 'c',
+)
+
+cc = meson.get_compiler('c')
+
+is_freebsd = host_machine.system().startswith('freebsd')
+datadir = get_option('datadir')
+sysconfdir = get_option('sysconfdir')
+prefix = get_option('prefix')
+
+if is_freebsd
+	add_project_arguments('-D_C11_SOURCE', language: 'c')
+endif
+
+# Execute the wlroots subproject, if any
+wlroots_version = ['>=0.21.0', '<0.22.0']
+subproject(
+	'wlroots',
+	default_options: ['examples=false'],
+	required: false,
+	version: wlroots_version,
+)
+wlroots = dependency('wlroots-0.21', version: wlroots_version, fallback: 'wlroots')
+wlroots_features = {
+	'xwayland': false,
+	'libinput_backend': false,
+	'session': false,
+}
+foreach name, _ : wlroots_features
+	var_name = 'have_' + name.underscorify()
+	have = wlroots.get_variable(pkgconfig: var_name, internal: var_name) == 'true'
+	wlroots_features += { name: have }
+endforeach
+
+null_dep = dependency('', required: false)
+
+jsonc = dependency('json-c', version: '>=0.13')
+pcre2 = dependency('libpcre2-8')
+wayland_server = dependency('wayland-server', version: '>=1.21.0')
+wayland_client = dependency('wayland-client')
+wayland_cursor = dependency('wayland-cursor')
+wayland_protos = dependency('wayland-protocols', version: '>=1.41', default_options: ['tests=false'])
+xkbcommon = dependency('xkbcommon', version: '>=1.5.0')
+cairo = dependency('cairo')
+pango = dependency('pango')
+pangocairo = dependency('pangocairo')
+gdk_pixbuf = dependency('gdk-pixbuf-2.0', required: get_option('gdk-pixbuf'))
+pixman = dependency('pixman-1')
+libevdev = dependency('libevdev')
+libinput = wlroots_features['libinput_backend'] ? dependency('libinput', version: '>=1.26.0') : null_dep
+xcb = wlroots_features['xwayland'] ? dependency('xcb') : null_dep
+drm = dependency('libdrm')
+libudev = wlroots_features['libinput_backend'] ? dependency('libudev') : null_dep
+math = cc.find_library('m')
+rt = cc.find_library('rt')
+xcb_icccm = wlroots_features['xwayland'] ? dependency('xcb-icccm') : null_dep
+threads = dependency('threads') # for pthread_setschedparam and pthread_atfork
+
+if get_option('sd-bus-provider') == 'auto'
+	if not get_option('tray').disabled()
+		assert(get_option('auto_features').auto(), 'sd-bus-provider must not be set to auto since auto_features != auto')
+	endif
+	sdbus = dependency(['libsystemd', 'libelogind'],
+		required: false,
+		version: '>=239',
+	)
+	if not sdbus.found()
+		sdbus = dependency('basu', required: false)
+	endif
+else
+	sdbus = dependency(get_option('sd-bus-provider'), required: get_option('tray'))
+endif
+
+tray_deps_found = sdbus.found()
+if get_option('tray').enabled() and not tray_deps_found
+	error('Building with -Dtray=enabled, but sd-bus has not been not found')
+endif
+have_tray = (not get_option('tray').disabled()) and tray_deps_found
+
+conf_data = configuration_data()
+
+conf_data.set10('HAVE_GDK_PIXBUF', gdk_pixbuf.found())
+conf_data.set10('HAVE_LIBSYSTEMD', sdbus.found() and sdbus.name() == 'libsystemd')
+conf_data.set10('HAVE_LIBELOGIND', sdbus.found() and sdbus.name() == 'libelogind')
+conf_data.set10('HAVE_BASU', sdbus.found() and sdbus.name() == 'basu')
+conf_data.set10('HAVE_TRAY', have_tray)
+foreach sym : ['LIBINPUT_CONFIG_ACCEL_PROFILE_CUSTOM', 'LIBINPUT_CONFIG_DRAG_LOCK_ENABLED_STICKY', 'LIBINPUT_SWITCH_KEYPAD_SLIDE']
+	conf_data.set10('HAVE_' + sym, cc.has_header_symbol('libinput.h', sym, dependencies: libinput))
+endforeach
+
+scdoc = dependency('scdoc', version: '>=1.9.2', native: true, required: get_option('man-pages'))
+if scdoc.found()
+	scdoc_prog = find_program(scdoc.get_variable(pkgconfig: 'scdoc'), native: true)
+	mandir = get_option('mandir')
+	man_files = [
+		'sway/sway.1.scd',
+		'sway/sway.5.scd',
+		'sway/sway-bar.5.scd',
+		'sway/sway-input.5.scd',
+		'sway/sway-ipc.7.scd',
+		'sway/sway-output.5.scd',
+		'swaybar/swaybar-protocol.7.scd',
+		'swaymsg/swaymsg.1.scd',
+	]
+
+	if get_option('swaynag')
+		man_files += [
+			'swaynag/swaynag.1.scd',
+			'swaynag/swaynag.5.scd',
+		]
+	endif
+
+	foreach filename : man_files
+		topic = filename.split('.')[-3].split('/')[-1]
+		section = filename.split('.')[-2]
+		output = '@0@.@1@'.format(topic, section)
+
+		custom_target(
+			output,
+			input: filename,
+			output: output,
+			command: scdoc_prog,
+			install: true,
+			feed: true,
+			capture: true,
+			install_dir: '@0@/man@1@'.format(mandir, section)
+		)
+	endforeach
+endif
+
+add_project_arguments('-DSYSCONFDIR="/@0@"'.format(join_paths(prefix, sysconfdir)), language : 'c')
+
+version = '"@0@"'.format(meson.project_version())
+git = find_program('git', native: true, required: false)
+if git.found()
+	git_commit = run_command([git, '--git-dir=.git', 'rev-parse', '--short', 'HEAD'], check: false)
+	git_branch = run_command([git, '--git-dir=.git', 'rev-parse', '--abbrev-ref', 'HEAD'], check: false)
+	if git_commit.returncode() == 0 and git_branch.returncode() == 0
+		version = '"@0@-@1@ (" __DATE__ ", branch \'@2@\')"'.format(
+			meson.project_version(),
+			git_commit.stdout().strip(),
+			git_branch.stdout().strip(),
+		)
+	endif
+endif
+add_project_arguments('-DSWAY_VERSION=@0@'.format(version), language: 'c')
+
+fs = import('fs')
+
+# Strip relative path prefixes from the code if possible, otherwise hide them.
+relative_dir = fs.relative_to(meson.current_source_dir(), meson.global_build_root()) + '/'
+if cc.has_argument('-fmacro-prefix-map=/prefix/to/hide=')
+	add_project_arguments(
+		'-fmacro-prefix-map=@0@='.format(relative_dir),
+		language: 'c',
+	)
+else
+	add_project_arguments(
+		'-DSWAY_REL_SRC_DIR="@0@"'.format(relative_dir),
+		language: 'c',
+	)
+endif
+
+
+sway_inc = include_directories('include')
+
+subdir('include')
+subdir('protocols')
+subdir('common')
+subdir('sway')
+subdir('swaymsg')
+
+if get_option('swaybar') or get_option('swaynag')
+	subdir('client')
+endif
+if get_option('swaybar')
+	subdir('swaybar')
+endif
+if get_option('swaynag')
+	subdir('swaynag')
+endif
+
+config = configuration_data()
+config.set('datadir', join_paths(prefix, datadir))
+config.set('prefix', prefix)
+config.set('sysconfdir', join_paths(prefix, sysconfdir))
+
+configure_file(
+	configuration: config,
+	input: 'config.in',
+	output: '@BASENAME@',
+	install_dir: join_paths(sysconfdir, 'sway')
+)
+
+install_data(
+	'sway.desktop',
+	install_dir: join_paths(datadir, 'wayland-sessions')
+)
+
+if get_option('default-wallpaper')
+	wallpaper_files = files(
+		'assets/Sway_Wallpaper_Blue_768x1024.png',
+		'assets/Sway_Wallpaper_Blue_768x1024_Portrait.png',
+		'assets/Sway_Wallpaper_Blue_1136x640.png',
+		'assets/Sway_Wallpaper_Blue_1136x640_Portrait.png',
+		'assets/Sway_Wallpaper_Blue_1366x768.png',
+		'assets/Sway_Wallpaper_Blue_1920x1080.png',
+		'assets/Sway_Wallpaper_Blue_2048x1536.png',
+		'assets/Sway_Wallpaper_Blue_2048x1536_Portrait.png',
+	)
+	wallpaper_install_dir = join_paths(datadir, 'backgrounds', 'sway')
+
+	install_data(wallpaper_files, install_dir: wallpaper_install_dir)
+endif
+
+subdir('completions')
+
+summary({
+	'gdk-pixbuf': gdk_pixbuf.found(),
+	'tray': have_tray,
+	'man-pages': scdoc.found(),
+}, bool_yn: true)

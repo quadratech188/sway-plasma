@@ -38,6 +38,7 @@ struct sway_root {
 	// - Below                (Layer shell bottom)     ->       shell_bottom
 	// - Normal                                        ->       tiling, floating
 	// - Above                (Layer shell top)        ->       shell_top
+	//                                                    (NEW) above (for appletpopups)
 	// - Notification                                  -> (NEW) notification
 	// - Active                                        ->       fullscreen
 	// - Popup                                         ->       popup (In sway this is above shell_overlay,
@@ -57,6 +58,7 @@ struct sway_root {
 		struct wlr_scene_tree *tiling;
 		struct wlr_scene_tree *floating;
 		struct wlr_scene_tree *shell_top;
+		struct wlr_scene_tree *above;
 		struct wlr_scene_tree *notification;
 		struct wlr_scene_tree *fullscreen;
 		struct wlr_scene_tree *fullscreen_global;

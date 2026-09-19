@@ -677,6 +677,7 @@ static void arrange_root(struct sway_root *root) {
 	wlr_scene_node_set_enabled(&root->layers.tiling->node, !fs);
 	wlr_scene_node_set_enabled(&root->layers.floating->node, !fs);
 	wlr_scene_node_set_enabled(&root->layers.shell_top->node, !fs);
+	wlr_scene_node_set_enabled(&root->layers.above->node, !fs);
 	wlr_scene_node_set_enabled(&root->layers.notification->node, !fs);
 	wlr_scene_node_set_enabled(&root->layers.fullscreen->node, !fs);
 

@@ -34,6 +34,7 @@ enum sway_fullscreen_mode {
 
 enum sway_container_layer {
 	LAYER_FLOATING = 0,
+	LAYER_ABOVE,
 	LAYER_NOTIFICATION,
 	LAYER_CRIT_NOTIFICATION,
 	LAYER_ON_SCREEN_DISPLAY

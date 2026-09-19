@@ -45,6 +45,7 @@ struct sway_root *root_create(struct wl_display *wl_display) {
 	root->layers.tiling = alloc_scene_tree(root->layer_tree, &failed);
 	root->layers.floating = alloc_scene_tree(root->layer_tree, &failed);
 	root->layers.shell_top = alloc_scene_tree(root->layer_tree, &failed);
+	root->layers.above = alloc_scene_tree(root->layer_tree, &failed);
 	root->layers.notification = alloc_scene_tree(root->layer_tree, &failed);
 	root->layers.fullscreen = alloc_scene_tree(root->layer_tree, &failed);
 	root->layers.fullscreen_global = alloc_scene_tree(root->layer_tree, &failed);
@@ -93,6 +94,8 @@ struct wlr_scene_tree *root_get_container_layer_tree(enum sway_container_layer l
 	switch (layer) {
 		case LAYER_FLOATING:
 			return root->layers.floating;
+		case LAYER_ABOVE:
+			return root->layers.above;
 		case LAYER_NOTIFICATION:
 			return root->layers.notification;
 		case LAYER_CRIT_NOTIFICATION:

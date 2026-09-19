@@ -64,31 +64,7 @@ async fn handle_event(
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    let environment = [
-        "WAYLAND_DISPLAY",
-        "DISPLAY",
-        "I3SOCK",
-        "SWAYSOCK",
-        "XCURSOR_SIZE",
-        "XCURSOR_THEME"
-    ];
-
-    let result = std::process::Command::new("dbus-update-activation-environment")
-        .arg("--systemd")
-        .args(environment)
-        .spawn()?
-        .wait_with_output()?;
-
-    if !result.status.success() {
-        anyhow::bail!(
-            "dbus-update-activation-environment failed with exit code {}: {}",
-            result.status,
-            String::from_utf8_lossy(&result.stderr)
-        );
-    }
-
     let conn = zbus::connection::Builder::session()?
-        .name("org.kde.KWinWrapper")?
         .name("org.freedesktop.ScreenSaver")?
         .build().await?;
 

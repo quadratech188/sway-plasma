@@ -30,41 +30,45 @@ impl ScreenSaver {
         &self, name: &str, reason: &str,
         #[zbus(header)] header: zbus::message::Header<'_>,
     ) -> zbus::fdo::Result<u32> {
-        let policy_agent = { self.state.lock().await.policy_agent.clone() };
+        let sender = header.sender().unwrap().to_owned();
 
-        let cookie = policy_agent.add_inhibition(CHANGE_SCREEN_SETTINGS, name, reason).await?;
+        let mut this = self.state.lock().await;
+        println!("Inhibit by {sender}: {name}, {reason}");
+        let cookie = this.policy_agent.add_inhibition(CHANGE_SCREEN_SETTINGS, name, reason).await?;
+        println!("Inhibit by {sender}: {name}, {reason} -> {cookie}");
 
-        let mut state = self.state.lock().await;
-        state.known_names.entry(header.sender().unwrap().to_owned())
+        this.known_names.entry(header.sender().unwrap().to_owned())
             .or_default().insert(cookie);
         Ok(cookie)
     }
 
-    async fn uninhibit(
+    async fn un_inhibit(
         &self, cookie: u32,
         #[zbus(header)] header: zbus::message::Header<'_>,
     ) -> zbus::fdo::Result<()> {
+        let sender = header.sender().unwrap().to_owned();
 
-        let policy_agent = {
-            let mut this = self.state.lock().await;
+        let mut this = self.state.lock().await;
+        println!("UnInhibit by {sender}: {cookie}");
 
-            let result = match this.known_names.entry(header.sender().unwrap().to_owned()) {
-                hash_map::Entry::Vacant(_) => false,
-                hash_map::Entry::Occupied(mut x) => {
-                    let result = x.get_mut().remove(&cookie);
-                    if x.get().is_empty() {x.remove();}
-                    result
-                }
-            };
-            if !result {
-                return Err(zbus::fdo::Error::InvalidArgs(
-                    "Cookie not associated with sender".into(),
-                ));
+        let result = match this.known_names.entry(sender.clone()) {
+            hash_map::Entry::Vacant(_) => false,
+            hash_map::Entry::Occupied(mut x) => {
+                let result = x.get_mut().remove(&cookie);
+                if x.get().is_empty() {x.remove();}
+                result
             }
-            this.policy_agent.clone()
         };
+        if !result {
+            println!("UnInhibit by {sender}:  {cookie} -> Cookie not associated with sender");
+            return Err(zbus::fdo::Error::InvalidArgs(
+                "Cookie not associated with sender".into(),
+            ));
+        }
 
-        Ok(policy_agent.release_inhibition(cookie).await?)
+        this.policy_agent.release_inhibition(cookie).await?;
+        println!("UnInhibit by {sender}: {cookie} -> Ok");
+        Ok(())
     }
 }
 
@@ -76,15 +80,14 @@ async fn handle_event(
     let None = *args.new_owner else {return Ok(())};
     let Ok(unique_name) = zbus::names::UniqueName::try_from(args.name) else {return Ok(())};
 
-    let (policy_agent, cookies) = {
-        let mut screensaver = screensaver.lock().await;
-        let Some(cookies) = screensaver.known_names.remove(unique_name.as_str()) else {return Ok(())};
-        (screensaver.policy_agent.clone(), cookies)
-    };
+    let mut this = screensaver.lock().await;
+    let Some(cookies) = this.known_names.remove(unique_name.as_str()) else {return Ok(())};
 
+    println!("Client {unique_name} died: UnInhibiting cookies");
     for cookie in cookies {
-        policy_agent.release_inhibition(cookie).await?;
+        this.policy_agent.release_inhibition(cookie).await?;
     }
+    println!("Client {unique_name} died: UnInhibited cookies");
     Ok(())
 }
 

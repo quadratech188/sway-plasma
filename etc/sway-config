@@ -6,4 +6,4 @@ bindsym XF86AudioMicMute     exec wpctl set-mute   @DEFAULT_AUDIO_SOURCE@ toggle
 # If you remove this KDE *WILL NOT BOOT PROPERLY*
 exec /home/quadratech/Projects/sway-plasma/etc/continue-kde-startup
 
-exec /home/quadratech/Projects/sway-plasma/after-startup/target/debug/after-startup
+exec /home/quadratech/Projects/sway-plasma/sway-extensions/build/sway-extensions

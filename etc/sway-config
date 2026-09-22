@@ -16,4 +16,4 @@ bindsym XF86MonBrightnessUp exec qdbus-qt6 \
 # If you remove this KDE *WILL NOT BOOT PROPERLY*
 exec /home/quadratech/Projects/sway-plasma/etc/continue-kde-startup
 
-exec /home/quadratech/Projects/sway-plasma/sway-extensions/build/sway-extensions
+exec /home/quadratech/Projects/sway-plasma/etc/sway-extensions/build/sway-extensions

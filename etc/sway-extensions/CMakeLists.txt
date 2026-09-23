@@ -13,6 +13,7 @@ set(
 	SOURCES
 	src/main.cpp
 	src/screensaver.cpp
+	src/session.cpp
 )
 
 qt_add_dbus_adaptor(
@@ -22,6 +23,13 @@ qt_add_dbus_adaptor(
 	ScreenSaver
 )
 qt_add_dbus_interface(SOURCES dbus/kf6_org.kde.Solid.PowerManagement.PolicyAgent.xml policyagent)
+
+qt_add_dbus_adaptor(
+	SOURCES
+	dbus/org.kde.KWin.Session.xml
+	src/session.h
+	Session
+)
 
 qt_add_executable(
 	sway-extensions

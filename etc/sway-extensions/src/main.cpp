@@ -9,22 +9,31 @@
 
 #include "screensaver.h"
 #include "screensaveradaptor.h"
+#include "session.h"
+#include "sessionadaptor.h"
 
-auto SERVICE_NAME = "org.freedesktop.ScreenSaver";
+auto SERVICE_NAMES = {"org.freedesktop.ScreenSaver", "org.kde.KWin"};
 
 int main(int argc, char* argv[]) {
 	QCoreApplication app(argc, argv);
 
+	auto conn = QDBusConnection::sessionBus();
+
 	ScreenSaver screensaver;
 	new ScreenSaverAdaptor(&screensaver);
-
-	auto conn = QDBusConnection::sessionBus();
 	conn.registerObject("/ScreenSaver"                , &screensaver);
 	conn.registerObject("/org/freedesktop/ScreenSaver", &screensaver);
 
-	if (!conn.registerService(SERVICE_NAME)) {
-		qWarning() << "Failed to register" << SERVICE_NAME;
-		return 1;
+	Session session;
+	new SessionAdaptor(&session);
+	conn.registerObject("/Session", &session);
+
+	for (auto name: SERVICE_NAMES) {
+		if (!conn.registerService(name)) {
+			qWarning() << "Failed to register" << name;
+			return 1;
+		}
 	}
+
 	return app.exec();
 }

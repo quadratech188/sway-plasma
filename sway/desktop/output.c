@@ -233,6 +233,12 @@ void output_configure_scene(struct sway_output *output,
 			}
 		}
 
+		struct sway_xwayland_unmanaged *unmanaged
+			= scene_descriptor_try_get(node, SWAY_SCENE_DESC_XWAYLAND_UNMANAGED);
+		if (unmanaged) {
+			opacity *= unmanaged->wlr_xwayland_surface->opacity;
+		}
+
 		// hack: don't call the scene setter because that will damage all outputs
 		// We don't want to damage outputs that aren't our current output that
 		// we're configuring

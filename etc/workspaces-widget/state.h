@@ -28,16 +28,15 @@ class SwayState: public QObject {
 	Q_OBJECT
 	QML_ELEMENT
 
-	Q_PROPERTY(QString error READ error NOTIFY error_changed)
 	QString _error;
-
-	Q_PROPERTY(QVector<Workspace> workspaces READ workspaces NOTIFY workspaces_changed)
 	QVector<Workspace> _workspaces;
-
 	IPC socket;
 
 public:
 	SwayState(QObject* parent = nullptr);
+	Q_PROPERTY(QString error READ error NOTIFY error_changed)
+	Q_PROPERTY(QVector<Workspace> workspaces READ workspaces NOTIFY workspaces_changed)
+	Q_INVOKABLE void set_workspace(QString const& name);
 
 private:
 	void handle_reply(uint32_t type, QJsonDocument const& doc);

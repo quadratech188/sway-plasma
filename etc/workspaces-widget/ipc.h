@@ -10,6 +10,7 @@
 #define IPC_H
 
 enum SwayMsgType {
+	RUN_COMMAND = 0,
 	GET_WORKSPACES = 1,
 	SUBSCRIBE = 2,
 };

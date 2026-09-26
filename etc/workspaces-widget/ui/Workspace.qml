@@ -9,12 +9,19 @@ import plasma.applet.com.github.quadratech188.sway_workspaces as Sway
 Item {
 	id: root
 	required property Sway.workspace modelData
+	required property Sway.SwayState outer_state
 
 	Layout.fillHeight: true
 	Layout.preferredWidth: height
 
 	HoverHandler {
 		id: hoverHandler
+	}
+
+	TapHandler {
+		onTapped: {
+			outer_state.set_workspace(modelData.name)
+		}
 	}
 
 	KSvg.FrameSvgItem {

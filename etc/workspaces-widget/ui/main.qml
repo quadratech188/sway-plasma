@@ -9,7 +9,7 @@ PlasmoidItem {
 	id: root
 	
 	Sway.SwayState {
-		id: state
+		id: sway_state
 	}
 	
 	RowLayout {
@@ -17,8 +17,8 @@ PlasmoidItem {
 	    	spacing: 0
 	
 	    	Repeater {
-	    		model: state.workspaces
-	    	    	Workspace {}
+			model: sway_state.workspaces
+			Workspace {outer_state: sway_state}
 	    	}
 	
 	    	Item {

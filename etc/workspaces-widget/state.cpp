@@ -42,6 +42,11 @@ static Workspace parse_workspace(QJsonObject const& obj) {
 	};
 }
 
+void SwayState::set_workspace(QString const& name) {
+	static QString const format = "workspace %1";
+	socket.send(RUN_COMMAND, format.arg(name).toUtf8());
+}
+
 void SwayState::handle_reply(uint32_t type, QJsonDocument const &doc) {
 	switch (type) {
 		case GET_WORKSPACES:

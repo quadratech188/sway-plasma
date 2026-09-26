@@ -1,0 +1,9 @@
+{
+    "KPlugin": {
+        "Name": "Sway Workspaces",
+        "Version": "1.0",
+        "Website": "https://github.com/quadratech188/sway-plasma"
+    },
+    "KPackageStructure": "Plasma/Applet",
+    "X-Plasma-API-Minimum-Version": "6.0"
+}

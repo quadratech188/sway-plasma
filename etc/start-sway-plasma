@@ -1,0 +1,5 @@
+#!/usr/bin/sh
+mkdir -p $XDG_RUNTIME_DIR/systemd/transient
+ln -s /usr/share/sway-plasma/plasma-kwin_wayland.service $XDG_RUNTIME_DIR/systemd/transient/plasma-kwin_wayland.service
+systemctl --user daemon-reload
+startplasma-wayland

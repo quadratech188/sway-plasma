@@ -248,7 +248,7 @@ if wlroots_features['libinput_backend']
 endif
 
 executable(
-	'sway',
+	'sway-plasma',
 	sway_sources + wl_protos_src,
 	include_directories: [sway_inc],
 	dependencies: sway_deps,

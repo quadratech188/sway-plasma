@@ -141,16 +141,16 @@ if scdoc.found()
 		section = filename.split('.')[-2]
 		output = '@0@.@1@'.format(topic, section)
 
-		custom_target(
-			output,
-			input: filename,
-			output: output,
-			command: scdoc_prog,
-			install: true,
-			feed: true,
-			capture: true,
-			install_dir: '@0@/man@1@'.format(mandir, section)
-		)
+                # custom_target(
+		# 	output,
+		# 	input: filename,
+		# 	output: output,
+		# 	command: scdoc_prog,
+		# 	install: true,
+		# 	feed: true,
+		# 	capture: true,
+		# 	install_dir: '@0@/man@1@'.format(mandir, section)
+		# )
 	endforeach
 endif
 
@@ -194,16 +194,16 @@ subdir('include')
 subdir('protocols')
 subdir('common')
 subdir('sway')
-subdir('swaymsg')
+# subdir('swaymsg')
 
 if get_option('swaybar') or get_option('swaynag')
-	subdir('client')
+	# subdir('client')
 endif
 if get_option('swaybar')
-	subdir('swaybar')
+	# subdir('swaybar')
 endif
 if get_option('swaynag')
-	subdir('swaynag')
+	# subdir('swaynag')
 endif
 
 config = configuration_data()
@@ -211,17 +211,17 @@ config.set('datadir', join_paths(prefix, datadir))
 config.set('prefix', prefix)
 config.set('sysconfdir', join_paths(prefix, sysconfdir))
 
-configure_file(
-	configuration: config,
-	input: 'config.in',
-	output: '@BASENAME@',
-	install_dir: join_paths(sysconfdir, 'sway')
-)
-
-install_data(
-	'sway.desktop',
-	install_dir: join_paths(datadir, 'wayland-sessions')
-)
+# configure_file(
+# 	configuration: config,
+# 	input: 'config.in',
+# 	output: '@BASENAME@',
+# 	install_dir: join_paths(sysconfdir, 'sway')
+# )
+# 
+# install_data(
+# 	'sway.desktop',
+# 	install_dir: join_paths(datadir, 'wayland-sessions')
+# )
 
 if get_option('default-wallpaper')
 	wallpaper_files = files(
@@ -236,10 +236,10 @@ if get_option('default-wallpaper')
 	)
 	wallpaper_install_dir = join_paths(datadir, 'backgrounds', 'sway')
 
-	install_data(wallpaper_files, install_dir: wallpaper_install_dir)
+        # install_data(wallpaper_files, install_dir: wallpaper_install_dir)
 endif
 
-subdir('completions')
+# subdir('completions')
 
 summary({
 	'gdk-pixbuf': gdk_pixbuf.found(),

@@ -4,6 +4,6 @@ PartOf=graphical-session.target
 
 [Service]
 Environment="XDG_CURRENT_DESKTOP=Sway-Plasma:KDE"
-ExecStart=/home/quadratech/Projects/sway-plasma/builddir/sway/sway --config %E/sway-plasma/config
+ExecStart=sway-plasma --config %E/sway-plasma/config
 BusName=org.kde.KWinWrapper
 Slice=session.slice

@@ -37,3 +37,5 @@ qt_add_executable(
 )
 
 target_link_libraries(sway-extensions PRIVATE Qt6::Core Qt6::DBus)
+
+install(TARGETS sway-extensions DESTINATION libexec/sway-plasma)

@@ -16,11 +16,13 @@
 Everything that is not in the compositor lives in `./etc/`.
 
 ## Usage
-Very unfriendly as of now.  
+```
+meson setup builddir .
+meson compile -C builddir
+sudo meson install -C builddir
 
-1. Compile `sway` and `sway-extensions`
-2. `sed -i1 's|/home/quadratech/Projects/sway-plasma|<REPO LOCATION>|g' etc/*`
-3. Create a new sway config, and in it source `./etc/sway-config`
-4. Install `./etc/plasma-kwin_wayland.service` as a systemd user unit.
-5. Install `./etc/kde-portals.conf` to `~/.config/xdg-desktop-portal/`
-6. Select 'Plasma' from your display manager.
+cd etc
+cmake -S . -B build -G Ninja
+cmake --build build
+sudo cmake --install build
+```

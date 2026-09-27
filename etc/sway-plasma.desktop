@@ -1,0 +1,5 @@
+[Desktop Entry]
+Exec=/usr/libexec/plasma-dbus-run-session-if-needed /usr/bin/start-sway-plasma
+TryExec=/usr/bin/start-sway-plasma
+Name=Sway Plasma
+Comment=Plasma with Sway

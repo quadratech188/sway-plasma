@@ -14,6 +14,5 @@ bindsym XF86MonBrightnessUp exec qdbus-qt6 \
 	AdjustBrightnessRatio +0.05 0
 
 # If you remove this KDE *WILL NOT BOOT PROPERLY*
-exec /home/quadratech/Projects/sway-plasma/etc/continue-kde-startup
-
-exec /home/quadratech/Projects/sway-plasma/etc/sway-extensions/build/sway-extensions
+exec /usr/libexec/sway-plasma/continue-kde-startup
+exec /usr/libexec/sway-plasma/sway-extensions

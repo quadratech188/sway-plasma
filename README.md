@@ -12,6 +12,8 @@
 - A script + `systemd` service that lets Sway replace `plasma-kwin_wayland.service` during KDE startup
 - An `sway-extensions` executable that provides Kwin's:
     - `org.freedesktop.ScreenSaver` interface, which lets applications inhibit screen dimming
+- A Sway workspace indicator widget
+- Miscellaneous scripts that allow you to select 'Sway Plasma' in the Display Manager
 
 Everything that is not in the compositor lives in `./etc/`.
 

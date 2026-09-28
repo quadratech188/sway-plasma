@@ -3,6 +3,6 @@ Description=KDE Wayland Compositor
 PartOf=graphical-session.target
 
 [Service]
-ExecStart=sway-plasma --config %E/sway-plasma/config
+ExecStart=sway-plasma
 BusName=org.kde.KWinWrapper
 Slice=session.slice

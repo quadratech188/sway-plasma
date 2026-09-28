@@ -387,12 +387,9 @@ static char *get_config_path(void) {
 	};
 
 	struct config_path config_paths[] = {
-		{ .prefix = home, .config_folder = ".sway"},
-		{ .prefix = config_home, .config_folder = "sway"},
-		{ .prefix = home, .config_folder = ".i3"},
-		{ .prefix = config_home, .config_folder = "i3"},
-		{ .prefix = SYSCONFDIR, .config_folder = "sway"},
-		{ .prefix = SYSCONFDIR, .config_folder = "i3"}
+		{ .prefix = home, .config_folder = ".sway-plasma"},
+		{ .prefix = config_home, .config_folder = "sway-plasma"},
+		{ .prefix = SYSCONFDIR, .config_folder = "sway-plasma"},
 	};
 
 	size_t num_config_paths = sizeof(config_paths)/sizeof(config_paths[0]);

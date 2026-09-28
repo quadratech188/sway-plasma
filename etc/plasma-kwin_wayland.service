@@ -3,7 +3,6 @@ Description=KDE Wayland Compositor
 PartOf=graphical-session.target
 
 [Service]
-Environment="XDG_CURRENT_DESKTOP=Sway-Plasma:KDE"
 ExecStart=sway-plasma --config %E/sway-plasma/config
 BusName=org.kde.KWinWrapper
 Slice=session.slice

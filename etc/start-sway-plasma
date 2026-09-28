@@ -1,5 +1,8 @@
 #!/usr/bin/sh
 mkdir -p $XDG_RUNTIME_DIR/systemd/transient
-ln -s /usr/share/sway-plasma/plasma-kwin_wayland.service $XDG_RUNTIME_DIR/systemd/transient/plasma-kwin_wayland.service
+ln -s /usr/share/sway-plasma/plasma-kwin_wayland.service $XDG_RUNTIME_DIR/systemd/transient
+
+mkdir -p $XDG_RUNTIME_DIR/systemd/transient/xdg-desktop-portal.service.d
+ln -s /usr/share/sway-plasma/xdg-desktop-portal-env.conf $XDG_RUNTIME_DIR/systemd/transient/xdg-desktop-portal.service.d
 systemctl --user daemon-reload
 startplasma-wayland

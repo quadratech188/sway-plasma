@@ -28,3 +28,8 @@ cmake -S . -B build -G Ninja
 cmake --build build
 sudo cmake --install build
 ```
+
+> [!NOTE]
+> This project was forked after sway bumped its required `wlroots` version to 0.21. Most distributions still ship 0.20.
+> - Clone the `wlroots` repo inside `./subprojects/`.
+> - `meson`'s default library install directory (`/usr/local/lib64/`) may not exist in `ld`'s search path. Add an entry in `/etc/ld.so.conf.d/` if this is the case.

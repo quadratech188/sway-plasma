@@ -28,6 +28,7 @@ public:
 
 class SwayState: public QObject {
 	Q_OBJECT
+	QML_SINGLETON
 	QML_ELEMENT
 
 	QString _error;

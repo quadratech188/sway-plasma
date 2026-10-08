@@ -9,7 +9,6 @@ import plasma.applet.com.github.quadratech188.sway_workspaces as Sway
 Item {
 	id: root
 	required property Sway.workspace modelData
-	required property Sway.SwayState outer_state
 
 	Layout.fillHeight: true
 	Layout.preferredWidth: height
@@ -20,7 +19,7 @@ Item {
 
 	TapHandler {
 		onTapped: {
-			outer_state.set_workspace(modelData.name)
+			SwayState.set_workspace(modelData.name)
 		}
 	}
 

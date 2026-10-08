@@ -1128,6 +1128,7 @@ struct sway_output *container_floating_find_output(struct sway_container *con) {
 			closest_distance = distance;
 		}
 	}
+	if (!closest_output) return root->fallback_output;
 	return closest_output;
 }
 

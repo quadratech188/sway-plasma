@@ -85,10 +85,10 @@ bool plasma_surface_configure_container(
 		case ORG_KDE_PLASMA_SURFACE_ROLE_CRITICALNOTIFICATION:
 			container_set_floating(container, true);
 			sway_log(SWAY_DEBUG, "Move plasma surface %p to lower-center", surface);
-			container_floating_translate(
+			container_floating_move_to(
 				container,
-				(double)workspace->width / 2 - container->pending.width / 2 - container->pending.x,
-				2 * (double)workspace->height / 3 - container->pending.height / 2 - container->pending.y
+				(double)workspace->width / 2 - container->pending.width / 2,
+				2 * (double)workspace->height / 3 - container->pending.height / 2
 			);
 			updated = true;
 			break;
@@ -129,11 +129,7 @@ bool plasma_surface_configure_container(
 			SWAY_DEBUG, "Move plasma surface %p to %d, %d",
 			surface, surface->x, surface->y
 		);
-		container_floating_translate(
-			container,
-			surface->x - container->pending.x,
-			surface->y - container->pending.y
-		);
+		container_floating_move_to(container, surface->x, surface->y);
 		updated = true;
 	}
 	return updated;

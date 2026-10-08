@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Window
 
 import org.kde.plasma.plasmoid
 
@@ -17,7 +18,7 @@ PlasmoidItem {
 	    	spacing: 0
 	
 	    	Repeater {
-			model: sway_state.workspaces
+			model: sway_state.workspaces.filter(x => x.output == Screen.name)
 			Workspace {outer_state: sway_state}
 	    	}
 	

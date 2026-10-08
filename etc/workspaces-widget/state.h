@@ -22,6 +22,8 @@ public:
 	bool focused;
 	Q_PROPERTY(bool urgent MEMBER urgent)
 	bool urgent;
+	Q_PROPERTY(QString output MEMBER output)
+	QString output;
 };
 
 class SwayState: public QObject {

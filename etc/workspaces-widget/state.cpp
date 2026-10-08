@@ -38,7 +38,8 @@ static Workspace parse_workspace(QJsonObject const& obj) {
 	return Workspace {
 		.name = obj["name"].toString(),
 		.focused = obj["focused"].toBool(),
-		.urgent= obj["urgent"].toBool()
+		.urgent= obj["urgent"].toBool(),
+		.output = obj["output"].toString(),
 	};
 }
 

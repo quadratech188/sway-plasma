@@ -5,7 +5,6 @@
 #include <wayland-server-core.h>
 #include <wayland-server.h>
 #include <wayland-util.h>
-#include "plasma_shell.h"
 #include "log.h"
 #include "plasma-shell-protocol.h"
 #include "sway/input/input-manager.h"
@@ -13,6 +12,7 @@
 #include "sway/tree/container.h"
 #include "sway/tree/view.h"
 #include "sway/tree/workspace.h"
+#include "sway/desktop/plasma_shell.h"
 
 #define PLASMA_SHELL_VERSION 8
 

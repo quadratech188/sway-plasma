@@ -22,6 +22,7 @@
 #include "log.h"
 #include "sway/config.h"
 #include "sway/desktop/transaction.h"
+#include "sway/desktop/kde_output_order_v1.h"
 #include "sway/input/input-manager.h"
 #include "sway/input/seat.h"
 #include "sway/ipc-server.h"
@@ -34,7 +35,6 @@
 #include "sway/tree/root.h"
 #include "sway/tree/view.h"
 #include "sway/tree/workspace.h"
-#include "desktop/kde_output_order_v1.h"
 
 #if WLR_HAS_DRM_BACKEND
 #include <wlr/backend/drm.h>

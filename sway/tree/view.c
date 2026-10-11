@@ -23,6 +23,7 @@
 #include "sway/commands.h"
 #include "sway/desktop/transaction.h"
 #include "sway/desktop/idle_inhibit_v1.h"
+#include "sway/desktop/plasma_shell.h"
 #include "sway/desktop/launcher.h"
 #include "sway/input/cursor.h"
 #include "sway/ipc-server.h"
@@ -37,7 +38,6 @@
 #include "sway/config.h"
 #include "sway/xdg_decoration.h"
 #include "stringop.h"
-#include "desktop/plasma_shell.h"
 
 static void handle_outputs_update(
 		struct wl_listener *listener, void *data) {

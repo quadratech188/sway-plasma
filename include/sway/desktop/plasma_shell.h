@@ -1,3 +1,6 @@
+#ifndef _PLASMA_SHELL_H
+#define _PLASMA_SHELL_H
+
 #include "plasma-shell-protocol.h"
 #include "sway/tree/container.h"
 #include <wayland-server-core.h>
@@ -39,3 +42,5 @@ bool plasma_surface_configure_container(
 );
 
 bool plasma_surface_can_take_focus(struct plasma_surface *surface);
+
+#endif

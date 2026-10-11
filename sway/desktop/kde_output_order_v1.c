@@ -1,4 +1,4 @@
-#include "kde_output_order_v1.h"
+#include "sway/desktop/kde_output_order_v1.h"
 #include "kde-output-order-v1-protocol.h"
 #include "sway/output.h"
 #include <stdlib.h>

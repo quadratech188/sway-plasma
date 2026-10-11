@@ -12,7 +12,6 @@
 #include "sway/server.h"
 #include "log.h"
 #include "util.h"
-#include "desktop/kde_output_order_v1.h"
 
 enum wlr_direction opposite_direction(enum wlr_direction d) {
 	switch (d) {
@@ -155,7 +154,6 @@ void output_enable(struct sway_output *output) {
 	struct wlr_output *wlr_output = output->wlr_output;
 	output->enabled = true;
 	list_add(root->outputs, output);
-	kde_output_order_v1_update_outputs(server.kde_output_order_v1);
 
 	sway_ext_workspace_output_enable(output);
 	restore_workspaces(output);
@@ -293,7 +291,6 @@ void output_disable(struct sway_output *output) {
 	// transactions, as the output might be physically removed with the scene
 	// output destroyed.
 	list_del(root->outputs, index);
-	kde_output_order_v1_update_outputs(server.kde_output_order_v1);
 	output->enabled = false;
 
 	destroy_layers(output);

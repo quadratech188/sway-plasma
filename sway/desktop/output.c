@@ -34,6 +34,7 @@
 #include "sway/tree/root.h"
 #include "sway/tree/view.h"
 #include "sway/tree/workspace.h"
+#include "desktop/kde_output_order_v1.h"
 
 #if WLR_HAS_DRM_BACKEND
 #include <wlr/backend/drm.h>
@@ -401,7 +402,7 @@ void update_output_manager_config(struct sway_server *server) {
 	}
 
 	wlr_output_manager_v1_set_configuration(server->output_manager_v1, config);
-
+	kde_output_order_v1_update_outputs(server->kde_output_order_v1);
 	ipc_event_output();
 }
 

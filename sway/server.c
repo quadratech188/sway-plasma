@@ -59,6 +59,7 @@
 #include "sway/config.h"
 #include "sway/desktop/idle_inhibit_v1.h"
 #include "desktop/plasma_shell.h"
+#include "desktop/kde_output_order_v1.h"
 #include "sway/input/input-manager.h"
 #include "sway/output.h"
 #include "sway/server.h"
@@ -375,6 +376,12 @@ bool server_init(struct sway_server *server) {
 		SWAY_PLASMA_SHELL_VERSION);
 	if (!server->plasma_shell) {
 		sway_log(SWAY_ERROR, "Failed to create plasma shell");
+		return false;
+	}
+
+	server->kde_output_order_v1 = kde_output_order_v1_create(server->wl_display);
+	if (!server->kde_output_order_v1) {
+		sway_log(SWAY_ERROR, "Failed to create kde output order v1");
 		return false;
 	}
 

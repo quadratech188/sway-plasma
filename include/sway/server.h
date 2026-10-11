@@ -55,6 +55,7 @@ struct sway_server {
 	struct wl_listener layer_shell_surface;
 
 	struct plasma_shell *plasma_shell;
+	struct kde_output_order_v1 *kde_output_order_v1;
 
 	struct wlr_xdg_shell *xdg_shell;
 	struct wl_listener xdg_shell_toplevel;

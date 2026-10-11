@@ -18,6 +18,7 @@ sway_sources = files(
 	'desktop/idle_inhibit_v1.c',
 	'desktop/layer_shell.c',
 	'desktop/plasma_shell.c',
+	'desktop/kde_output_order_v1.c',
 	'desktop/output.c',
 	'desktop/tearing.c',
 	'desktop/transaction.c',

@@ -14,7 +14,7 @@ PlasmoidItem {
 	    	spacing: 0
 	
 	    	Repeater {
-			model: SwayState.workspaces.filter(x => x.output == Screen.name)
+			model: SwayState.workspaces//.filter(x => x.output == Screen.name)
 			Workspace {}
 	    	}
 	

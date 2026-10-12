@@ -14,8 +14,11 @@ PlasmoidItem {
 	    	spacing: 0
 	
 	    	Repeater {
-			model: SwayState.workspaces//.filter(x => x.output == Screen.name)
-			Workspace {}
+			// Keep the model stable when the panel moves between screens.
+			model: SwayState.workspaces
+			Workspace {
+				visible: modelData.output === root.Screen.name
+			}
 	    	}
 	
 	    	Item {

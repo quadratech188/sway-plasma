@@ -5,7 +5,7 @@ import org.kde.ksvg as KSvg
 import org.kde.plasma.components as Components
 import org.kde.kirigami as Kirigami
 
-import plasma.applet.com.github.quadratech188.sway_workspaces as Sway
+import com.github.quadratech188.swaystate as Sway
 
 Components.Button {
 	id: root
@@ -13,7 +13,7 @@ Components.Button {
 
 	implicitWidth: Math.max(0.8 * height, contentItem.implicitWidth)
 
-	onClicked: SwayState.set_workspace(modelData.name)
+	onClicked: Sway.SwayState.set_workspace(modelData.name)
 
 	contentItem: Components.Label {
 		text: root.modelData.name

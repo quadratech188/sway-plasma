@@ -12,17 +12,12 @@ set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
 include(KDEInstallDirs)
 include(KDECMakeSettings)
+include(ECMQmlModule)
 
 find_package(Qt6 REQUIRED Core)
 
 find_package(KF6 REQUIRED Config)
 find_package(Plasma 6 REQUIRED)
 
-plasma_add_applet(com.github.quadratech188.sway_workspaces GENERATE_APPLET_CLASS
-    QML_SOURCES
-        ui/Workspace.qml
-        ui/main.qml
-    CPP_SOURCES
-		state.cpp
-		ipc.cpp
-)
+add_subdirectory(state)
+add_subdirectory(workspaces)

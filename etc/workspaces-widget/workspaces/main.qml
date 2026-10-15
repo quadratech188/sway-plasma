@@ -5,7 +5,7 @@ import QtQuick.Window
 import org.kde.plasma.plasmoid
 import org.kde.kirigami as Kirigami
 
-import plasma.applet.com.github.quadratech188.sway_workspaces as Sway
+import com.github.quadratech188.swaystate as Sway
 
 PlasmoidItem {
 	id: root
@@ -18,7 +18,7 @@ PlasmoidItem {
 
 		reuseItems: true
 
-		model: SwayState.workspaces
+		model: Sway.SwayState.workspaces
 
 		delegate: Workspace {
 			visible: modelData.output === root.Screen.name

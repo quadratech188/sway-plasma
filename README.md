@@ -6,16 +6,16 @@
 - A partial implementation of KDE's [plasma-shell](https://wayland.app/protocols/kde-plasma-shell) wayland protocol in sway
     - `set_position` (Floats and correctly positions notifications, applets etc)
     - `set_role` (Correctly positions On-Screen Displays (volume / screen brightness etc))
+    - `set_panel_takes_focus`
 
 - Sway now emulates KWin's layers (Critical notifications show over fullscreen, etc)
 - Sway's resize behavior was changed so that edges not being dragged don't lag
-- A script + `systemd` service that lets Sway replace `plasma-kwin_wayland.service` during KDE startup
+- Miscellaneous scripts that adds this setup as a login manager entry
 - An `sway-extensions` executable that provides Kwin's:
     - `org.freedesktop.ScreenSaver` interface, which lets applications inhibit screen dimming
-- A Sway workspace indicator widget
-- Miscellaneous scripts that allow you to select 'Sway Plasma' in the Display Manager
+- A Sway workspace indicator widget & mode indicator widget
 
-Everything that is not in the compositor lives in `./etc/`.
+Everything that is not the compositor lives in `./etc/`.
 
 ## Usage
 ```

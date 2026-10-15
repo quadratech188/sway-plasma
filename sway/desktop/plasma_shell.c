@@ -93,12 +93,9 @@ void plasma_surface_apply_container_attributes(struct plasma_surface *plasma) {
 		container->is_sticky = true;
 	}
 
-	if (plasma->config.position.pending && container->resize_edge == WLR_EDGE_NONE) {
+	if (plasma->config.position.configured && container->resize_edge == WLR_EDGE_NONE) {
 		container_set_floating(container, true);
 		container_floating_move_to(container, plasma->config.position.x, plasma->config.position.y);
-
-		// Plasma remembers the position and applies it again on remap
-		// plasma->config.position.pending = false;
 	}
 }
 
@@ -167,7 +164,7 @@ static void plasma_surface_set_position(
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
 	surface->config.position.x = x;
 	surface->config.position.y = y;
-	surface->config.position.pending = true;
+	surface->config.position.configured = true;
 
 	plasma_surface_apply_container_attributes(surface);
 }

@@ -28,7 +28,7 @@ struct plasma_surface {
 		enum org_kde_plasma_surface_role role;
 		struct {
 			int32_t x, y;
-			bool pending;
+			bool configured;
 		} position;
 		enum {
 			TAKES_FOCUS_DEFAULT = 0,

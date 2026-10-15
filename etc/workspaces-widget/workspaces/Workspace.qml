@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Layouts
 
 import org.kde.ksvg as KSvg
 import org.kde.plasma.components as Components

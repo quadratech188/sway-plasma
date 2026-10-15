@@ -3,9 +3,10 @@ import QtQuick.Layouts
 import QtQuick.Window
 
 import org.kde.plasma.plasmoid
-import org.kde.kirigami as Kirigami
 
 import com.github.quadratech188.swaystate as Sway
+
+pragma ComponentBehavior: Bound
 
 PlasmoidItem {
 	id: root

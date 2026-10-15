@@ -10,11 +10,14 @@ import com.github.quadratech188.swaystate as Sway
 PlasmoidItem {
 	id: root
 	Plasmoid.constraintHints: Plasmoid.CanFillArea
+	implicitWidth: view.contentWidth
+	Layout.preferredWidth: implicitWidth
 
 	ListView {
+		id: view
+
+		anchors.fill: parent
 		orientation: ListView.Horizontal
-		implicitWidth: contentWidth
-		height: root.height
 
 		reuseItems: true
 

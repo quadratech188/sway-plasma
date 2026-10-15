@@ -1155,6 +1155,10 @@ static void seat_set_workspace_focus(struct sway_seat *seat, struct sway_node *n
 		return;
 	}
 
+	if (container && container->view && !container->view->impl->takes_focus(container->view)) {
+		return;
+	}
+
 	// Find the output's last workspace, which might have to be removed if empty
 	struct sway_output *new_output =
 		new_workspace ? new_workspace->output : NULL;

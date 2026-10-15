@@ -7,6 +7,7 @@
 #include <wlr/util/edges.h>
 #include "log.h"
 #include "sway/decoration.h"
+#include "sway/desktop/plasma_shell.h"
 #include "sway/scene_descriptor.h"
 #include "sway/desktop/transaction.h"
 #include "sway/input/cursor.h"
@@ -249,6 +250,13 @@ static bool is_transient_for(struct sway_view *child,
 	return false;
 }
 
+static bool takes_focus(struct sway_view *view) {
+	if (view->plasma_surface) {
+		return plasma_surface_takes_focus(view->plasma_surface);
+	}
+	return true;
+}
+
 static void _close(struct sway_view *view) {
 	if (xdg_shell_view_from_view(view) == NULL) {
 		return;
@@ -283,6 +291,7 @@ static const struct sway_view_impl view_impl = {
 	.set_resizing = set_resizing,
 	.wants_floating = wants_floating,
 	.is_transient_for = is_transient_for,
+	.takes_focus = takes_focus,
 	.close = _close,
 	.close_popups = close_popups,
 	.destroy = destroy,

@@ -831,6 +831,11 @@ void view_map(struct sway_view *view, struct wlr_surface *wlr_surface,
 	view_populate_pid(view);
 	view->container = container_create(view);
 
+	struct plasma_surface *plasma = plasma_shell_find_plasma_surface(server.plasma_shell, wlr_surface);
+	if (plasma) {
+		plasma_surface_attach_to_view(plasma, view);
+	}
+
 	if (view->ctx == NULL) {
 		struct launcher_ctx *ctx = launcher_ctx_find_pid(view->pid);
 		if (ctx != NULL) {
@@ -918,13 +923,6 @@ void view_map(struct sway_view *view, struct wlr_surface *wlr_surface,
 		view_update_csd_from_client(view, decoration);
 	}
 
-	struct plasma_surface *plasma = plasma_shell_find_plasma_surface(server.plasma_shell, view->surface);
-	if (plasma) {
-		if (plasma_surface_configure_container(plasma, view->container)) {
-			goto skip_layout;
-		}
-	}
-
 	if (view->impl->wants_floating && view->impl->wants_floating(view)) {
 		view->container->pending.border = config->floating_border;
 		view->container->pending.border_thickness = config->floating_border_thickness;
@@ -945,7 +943,10 @@ void view_map(struct sway_view *view, struct wlr_surface *wlr_surface,
 		}
 	}
 
-skip_layout:
+	if (view->plasma_surface) {
+		plasma_surface_apply_container_attributes(view->plasma_surface);
+	}
+
 	view_update_title(view, false);
 	container_update_representation(container);
 
@@ -963,7 +964,7 @@ skip_layout:
 	view_execute_criteria(view);
 
 	bool set_focus = should_focus(view);
-
+	set_focus &= view->impl->takes_focus(view);
 
 #if WLR_HAS_XWAYLAND
 	struct wlr_xwayland_surface *xsurface;
@@ -972,10 +973,6 @@ skip_layout:
 				WLR_ICCCM_INPUT_MODEL_NONE;
 	}
 #endif
-
-	if (plasma) {
-		set_focus &= plasma_surface_can_take_focus(plasma);
-	}
 
 	if (set_focus) {
 		input_manager_set_focus(&view->container->node);
@@ -1047,6 +1044,11 @@ void view_unmap(struct sway_view *view) {
 
 	transaction_commit_dirty();
 	view->surface = NULL;
+
+	if (view->plasma_surface) {
+		plasma_surface_detach_from_view(view->plasma_surface);
+		view->plasma_surface = NULL;
+	}
 }
 
 void view_update_size(struct sway_view *view) {

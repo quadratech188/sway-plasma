@@ -57,6 +57,7 @@ struct sway_view_impl {
 	bool (*wants_floating)(struct sway_view *view);
 	bool (*is_transient_for)(struct sway_view *child,
 			struct sway_view *ancestor);
+	bool (*takes_focus)(struct sway_view *view);
 	void (*close)(struct sway_view *view);
 	void (*close_popups)(struct sway_view *view);
 	void (*destroy)(struct sway_view *view);
@@ -115,6 +116,9 @@ struct sway_view {
 		struct wlr_xwayland_surface *wlr_xwayland_surface;
 #endif
 	};
+
+	// It is up to each impl to consult with plasma_surface
+	struct plasma_surface *plasma_surface;
 
 	struct {
 		struct wl_signal unmap;

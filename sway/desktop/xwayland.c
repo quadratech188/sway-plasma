@@ -364,6 +364,11 @@ static bool is_transient_for(struct sway_view *child,
 	return false;
 }
 
+static bool takes_focus(struct sway_view *view) {
+	// TODO
+	return true;
+}
+
 static void _close(struct sway_view *view) {
 	if (xwayland_view_from_view(view) == NULL) {
 		return;
@@ -408,6 +413,7 @@ static const struct sway_view_impl view_impl = {
 	.set_fullscreen = set_fullscreen,
 	.wants_floating = wants_floating,
 	.is_transient_for = is_transient_for,
+	.takes_focus = takes_focus,
 	.close = _close,
 	.destroy = destroy,
 };

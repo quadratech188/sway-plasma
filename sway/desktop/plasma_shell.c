@@ -19,6 +19,87 @@
 static const struct org_kde_plasma_shell_interface plasma_shell_implementation;
 static const struct org_kde_plasma_surface_interface plasma_surface_implementation;
 
+void plasma_surface_attach_to_view(struct plasma_surface *plasma, struct sway_view *view) {
+	view->plasma_surface = plasma;
+	plasma->view = view;
+
+	wl_list_remove(&plasma->unassigned_surfaces_link);
+	wl_list_init(&plasma->unassigned_surfaces_link);
+}
+
+void plasma_surface_detach_from_view(struct plasma_surface *plasma) {
+	sway_assert(plasma->view, "Trying to detach from nonexistant view");
+	plasma->view->plasma_surface = NULL;
+	plasma->view = NULL;
+
+	wl_list_insert(&plasma->shell->unassigned_surfaces, &plasma->unassigned_surfaces_link);
+}
+
+bool plasma_surface_takes_focus(struct plasma_surface *plasma) {
+	switch (plasma->config.role) {
+		case ORG_KDE_PLASMA_SURFACE_ROLE_ONSCREENDISPLAY:
+		case ORG_KDE_PLASMA_SURFACE_ROLE_TOOLTIP:
+			return false;
+		case ORG_KDE_PLASMA_SURFACE_ROLE_PANEL:
+		case ORG_KDE_PLASMA_SURFACE_ROLE_NOTIFICATION:
+		case ORG_KDE_PLASMA_SURFACE_ROLE_CRITICALNOTIFICATION:
+			return plasma->config.takes_focus == TAKES_FOCUS_OVERRIDE_TRUE;
+		default:
+			return plasma->config.takes_focus == TAKES_FOCUS_DEFAULT
+				|| plasma->config.takes_focus == TAKES_FOCUS_OVERRIDE_TRUE;
+	}
+}
+
+void plasma_surface_apply_container_attributes(struct plasma_surface *plasma) {
+	if (!plasma->view) return;
+	if (!plasma->view->container) return;
+
+	struct sway_container *container = plasma->view->container;
+
+	enum sway_container_layer new_layer = LAYER_FLOATING;
+	switch (plasma->config.role) {
+		case ORG_KDE_PLASMA_SURFACE_ROLE_APPLETPOPUP:
+			new_layer = LAYER_ABOVE; break;
+		case ORG_KDE_PLASMA_SURFACE_ROLE_ONSCREENDISPLAY:
+			new_layer = LAYER_ON_SCREEN_DISPLAY; break;
+		case ORG_KDE_PLASMA_SURFACE_ROLE_NOTIFICATION:
+			new_layer = LAYER_NOTIFICATION; break;
+		case ORG_KDE_PLASMA_SURFACE_ROLE_CRITICALNOTIFICATION:
+			new_layer = LAYER_CRIT_NOTIFICATION; break;
+		default: break;
+	}
+	container_set_layer(container, new_layer);
+
+	struct sway_seat *seat = input_manager_current_seat();
+	struct sway_workspace *workspace = seat_get_focused_workspace(seat);
+
+	switch (plasma->config.role) {
+		case ORG_KDE_PLASMA_SURFACE_ROLE_ONSCREENDISPLAY:
+		case ORG_KDE_PLASMA_SURFACE_ROLE_NOTIFICATION:
+		case ORG_KDE_PLASMA_SURFACE_ROLE_CRITICALNOTIFICATION:
+			container_set_floating(container, true);
+			if (workspace) {
+				container_floating_move_to(
+					container,
+					(double)workspace->width / 2 - container->pending.width / 2,
+					2 * (double) workspace->height / 3 - container->pending.height / 2
+				);
+			}
+			break;
+		default: break;
+	}
+
+	if (plasma->config.role != ORG_KDE_PLASMA_SURFACE_ROLE_NORMAL) {
+		container->is_sticky = true;
+	}
+
+	if (plasma->config.position.pending && container->resize_edge == WLR_EDGE_NONE) {
+		container_set_floating(container, true);
+		container_floating_move_to(container, plasma->config.position.x, plasma->config.position.y);
+		plasma->config.position.pending = false;
+	}
+}
+
 static struct plasma_surface *plasma_surface_from_resource(struct wl_resource *resource) {
 	assert(wl_resource_instance_of(
 		resource,
@@ -28,31 +109,40 @@ static struct plasma_surface *plasma_surface_from_resource(struct wl_resource *r
 	return wl_resource_get_user_data(resource);
 }
 
+// When the parent resource is destroyed
 static void plasma_surface_resource_destroy(struct wl_resource *resource) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
 
-	if (surface->surface != NULL) {
-		wl_list_remove(&surface->link);
-		wl_list_remove(&surface->parent_destroy.link);
+	if (surface->view) {
+		plasma_surface_detach_from_view(surface);
 	}
+
+	// remove() on an empty list is safe
+	wl_list_remove(&surface->unassigned_surfaces_link);
+	wl_list_remove(&surface->parent_destroy.link);
+
 	free(surface);
 }
 
-static void plasma_surface_parent_destroy(struct wl_listener *listener, void *data) {
+// When the parent surface is destroyed
+static void plasma_surface_surface_destroy(struct wl_listener *listener, void *data) {
 	struct plasma_surface *surface = wl_container_of(
 		listener, surface, parent_destroy
 	);
 
-	// We consider this surface invalid, and remove it from the lookup list
-	wl_list_remove(&surface->link);
-	wl_list_remove(&surface->parent_destroy.link);
 	surface->surface = NULL;
+	wl_list_remove(&surface->parent_destroy.link);
+	wl_list_init(&surface->parent_destroy.link);
+
+	wl_list_remove(&surface->unassigned_surfaces_link);
+	wl_list_init(&surface->unassigned_surfaces_link);
 
 	// The XML spec says that the resource should be destroyed, but KWin doesn't do that.
 	// Doing so causes plasmashell crashes
 	// wl_resource_destroy(surface->resource);
 }
 
+// .destroy request
 static void plasma_surface_destroy(struct wl_client *client, struct wl_resource *resource) {
 	wl_resource_destroy(resource);
 }
@@ -63,86 +153,7 @@ static void plasma_surface_set_output(
 	struct wl_resource *output
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
-	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_set_output(%p, _)", surface);
-}
-
-bool plasma_surface_configure_container(
-	struct plasma_surface *surface,
-	struct sway_container *container
-) {
-	bool updated = false;
-
-	struct sway_seat *seat = input_manager_current_seat();
-	struct sway_workspace *workspace = seat_get_focused_workspace(seat);
-
-	if (!workspace) return updated;
-
-	// https://github.com/KDE/kwin/blob/38faf84c3b25a90ca3eb3f5f18476c048a9ff877/src/placement.cpp#L34-L56
-	switch (surface->role) {
-		case ORG_KDE_PLASMA_SURFACE_ROLE_ONSCREENDISPLAY:
-		case ORG_KDE_PLASMA_SURFACE_ROLE_NOTIFICATION:
-		case ORG_KDE_PLASMA_SURFACE_ROLE_CRITICALNOTIFICATION:
-			container_set_floating(container, true);
-			sway_log(SWAY_DEBUG, "Move plasma surface %p to lower-center", surface);
-			container_floating_move_to(
-				container,
-				(double)workspace->width / 2 - container->pending.width / 2,
-				2 * (double)workspace->height / 3 - container->pending.height / 2
-			);
-			updated = true;
-			break;
-
-		default:
-			break;
-	}
-
-	switch (surface->role) {
-		case ORG_KDE_PLASMA_SURFACE_ROLE_APPLETPOPUP:
-			container_set_layer(container, LAYER_ABOVE);
-			updated = true;
-			break;
-		case ORG_KDE_PLASMA_SURFACE_ROLE_ONSCREENDISPLAY:
-			container_set_layer(container, LAYER_ON_SCREEN_DISPLAY);
-			updated = true;
-			break;
-		case ORG_KDE_PLASMA_SURFACE_ROLE_NOTIFICATION:
-			container_set_layer(container, LAYER_NOTIFICATION);
-			updated = true;
-			break;
-		case ORG_KDE_PLASMA_SURFACE_ROLE_CRITICALNOTIFICATION:
-			container_set_layer(container, LAYER_CRIT_NOTIFICATION);
-			updated = true;
-			break;
-		default:
-			break;
-	}
-
-	if (surface->role != ORG_KDE_PLASMA_SURFACE_ROLE_NORMAL) {
-		container->is_sticky = true;
-	}
-
-	// Only set position when not resizing
-	if (surface->position_set && container->resize_edge == WLR_EDGE_NONE) {
-		container_set_floating(container, true);
-		sway_log(
-			SWAY_DEBUG, "Move plasma surface %p to %d, %d",
-			surface, surface->x, surface->y
-		);
-		container_floating_move_to(container, surface->x, surface->y);
-		updated = true;
-	}
-	return updated;
-}
-
-bool plasma_surface_can_take_focus(struct plasma_surface *surface) {
-	switch (surface->role) {
-		case ORG_KDE_PLASMA_SURFACE_ROLE_NORMAL:
-		case ORG_KDE_PLASMA_SURFACE_ROLE_APPLETPOPUP:
-			return true;
-		default:
-			return false;
-	}
 }
 
 static void plasma_surface_set_position(
@@ -152,15 +163,11 @@ static void plasma_surface_set_position(
 	int32_t y
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
-	if (!surface->surface) return;
+	surface->config.position.x = x;
+	surface->config.position.y = y;
+	surface->config.position.pending = true;
 
-	surface->position_set = true;
-	surface->x = x;
-	surface->y = y;
-
-	struct sway_view *view = view_from_wlr_surface(surface->surface);
-	if (!view || !view->container) return;
-	plasma_surface_configure_container(surface, view->container);
+	plasma_surface_apply_container_attributes(surface);
 }
 
 static void plasma_surface_set_role(
@@ -169,13 +176,9 @@ static void plasma_surface_set_role(
 	uint32_t role
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
-	if (!surface->surface) return;
+	surface->config.role = role;
 
-	surface->role = role;
-
-	struct sway_view *view = view_from_wlr_surface(surface->surface);
-	if (!view || !view->container) return;
-	plasma_surface_configure_container(surface, view->container);
+	plasma_surface_apply_container_attributes(surface);
 }
 
 static void plasma_surface_set_panel_behavior(
@@ -184,7 +187,6 @@ static void plasma_surface_set_panel_behavior(
 	uint32_t flag
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
-	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_set_panel_behavior(%p, %d)", surface, flag);
 }
 
@@ -194,7 +196,6 @@ static void plasma_surface_set_skip_taskbar(
 	uint32_t skip
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
-	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_set_skip_taskbar(%p, %d)", surface, skip);
 }
 
@@ -203,7 +204,6 @@ static void plasma_surface_panel_auto_hide_hide(
 	struct wl_resource *resource
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
-	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_panel_auto_hide_hide(%p)", surface);
 }
 
@@ -212,7 +212,6 @@ static void plasma_surface_panel_auto_hide_show(
 	struct wl_resource *resource
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
-	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_panel_auto_hide_show(%p)", surface);
 }
 
@@ -222,8 +221,11 @@ static void plasma_surface_set_panel_takes_focus(
 	uint32_t takes_focus
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
-	if (!surface->surface) return;
-	sway_log(SWAY_INFO, "STUB: plasma_surface_set_panel_takes_focus(%p, %d)", surface, takes_focus);
+	if (takes_focus) {
+		surface->config.takes_focus = TAKES_FOCUS_OVERRIDE_TRUE;
+	} else {
+		surface->config.takes_focus = TAKES_FOCUS_OVERRIDE_FALSE;
+	}
 }
 
 static void plasma_surface_set_skip_switcher(
@@ -232,7 +234,6 @@ static void plasma_surface_set_skip_switcher(
 	uint32_t skip
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
-	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_set_skip_switcher(%p, %d)", surface, skip);
 }
 
@@ -241,7 +242,6 @@ static void plasma_surface_open_under_cursor(
 	struct wl_resource *resource
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
-	if (!surface->surface) return;
 	sway_log(SWAY_INFO, "STUB: plasma_surface_open_under_cursor(%p)", surface);
 }
 
@@ -268,6 +268,17 @@ static struct plasma_shell *plasma_shell_from_resource(struct wl_resource *resou
 	return wl_resource_get_user_data(resource);
 }
 
+struct plasma_surface *plasma_shell_find_plasma_surface(
+	struct plasma_shell *shell,
+	struct wlr_surface *surface
+) {
+	struct plasma_surface *ptr;
+	wl_list_for_each(ptr, &shell->unassigned_surfaces, unassigned_surfaces_link) {
+		if (ptr->surface == surface) {return ptr;}
+	}
+	return NULL;
+}
+
 static void plasma_shell_get_surface(
 		struct wl_client *wl_client,
 		struct wl_resource *client_resource,
@@ -277,6 +288,21 @@ static void plasma_shell_get_surface(
 	struct plasma_shell *shell = plasma_shell_from_resource(client_resource);
 	struct wlr_surface *wlr_surface = wlr_surface_from_resource(surface_resource);
 
+	struct sway_view *view = view_from_wlr_surface(wlr_surface);
+	if (view && view->plasma_surface) {
+		// plasma-shell.xml forbids 2 shells attaching to a surface.
+		// But we only attach the shells when the surface maps to a view.
+		// If we already have a view we can handle the error here
+		wl_resource_post_error(client_resource, -1, "wl_surface already has a plasma surface");
+		return;
+
+		// FIXME
+		// But if the surface isn't mapped yet, we'd have to iterate over every
+		// plasma_surface to ensure uniqueness
+		// Having duplicates lying around don't cause any other problems,
+		// so let's ignore it
+	}
+
 	struct plasma_surface *surface = calloc(1, sizeof(*surface));
 	if (surface == NULL) {
 		goto error;
@@ -285,27 +311,31 @@ static void plasma_shell_get_surface(
 	surface->shell = shell;
 	surface->surface = wlr_surface;
 
-	surface->resource = wl_resource_create(
+	struct wl_resource *resource = wl_resource_create(
 		wl_client,
 		&org_kde_plasma_surface_interface,
 		wl_resource_get_version(client_resource),
 		id
 	);
-	if (surface->resource == NULL) {
+	if (resource == NULL) {
 		goto error_surface;
 	}
 
-	wl_list_insert(&shell->surfaces, &surface->link);
+	wl_list_insert(&shell->unassigned_surfaces, &surface->unassigned_surfaces_link);
 
 	wl_resource_set_implementation(
-		surface->resource,
+		resource,
 		&plasma_surface_implementation,
 		surface,
 		plasma_surface_resource_destroy
 	);
 
-	surface->parent_destroy.notify = plasma_surface_parent_destroy;
+	surface->parent_destroy.notify = plasma_surface_surface_destroy;
 	wl_signal_add(&wlr_surface->events.destroy, &surface->parent_destroy);
+
+	if (view) {
+		plasma_surface_attach_to_view(surface, view);
+	}
 
 	return;
 
@@ -353,7 +383,7 @@ struct plasma_shell *plasma_shell_create(struct wl_display *display, uint32_t ve
 	struct plasma_shell *plasma_shell = calloc(1, sizeof(*plasma_shell));
 	if (!plasma_shell) {return NULL;}
 
-	wl_list_init(&plasma_shell->surfaces);
+	wl_list_init(&plasma_shell->unassigned_surfaces);
 
 	struct wl_global *global = wl_global_create(
 		display,
@@ -372,15 +402,4 @@ struct plasma_shell *plasma_shell_create(struct wl_display *display, uint32_t ve
 	wl_display_add_destroy_listener(display, &plasma_shell->parent_destroy);
 
 	return plasma_shell;
-}
-
-struct plasma_surface *plasma_shell_find_plasma_surface(
-	struct plasma_shell *shell,
-	struct wlr_surface *surface
-) {
-	struct plasma_surface *ptr;
-	wl_list_for_each(ptr, &shell->surfaces, link) {
-		if (ptr->surface == surface) {return ptr;}
-	}
-	return NULL;
 }

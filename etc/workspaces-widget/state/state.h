@@ -33,12 +33,14 @@ class SwayState: public QObject {
 
 	QString _error;
 	QVector<Workspace> _workspaces;
+	QString mode;
 	IPC socket;
 
 public:
 	SwayState(QObject* parent = nullptr);
 	Q_PROPERTY(QString error READ error NOTIFY error_changed)
 	Q_PROPERTY(QVector<Workspace> workspaces READ workspaces NOTIFY workspaces_changed)
+	Q_PROPERTY(QString mode READ read_mode NOTIFY mode_changed)
 	Q_INVOKABLE void set_workspace(QString const& name);
 
 private:
@@ -47,12 +49,14 @@ private:
 
 	QString const& error() {return _error;}
 	QVector<Workspace> const& workspaces() {return _workspaces;}
+	QString const& read_mode() const {return mode;}
 
 	void configure_initial_state();
 
 signals:
 	void error_changed();
 	void workspaces_changed();
+	void mode_changed();
 };
 
 #endif

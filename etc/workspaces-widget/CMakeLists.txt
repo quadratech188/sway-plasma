@@ -21,3 +21,4 @@ find_package(Plasma 6 REQUIRED)
 
 add_subdirectory(state)
 add_subdirectory(workspaces)
+add_subdirectory(mode)

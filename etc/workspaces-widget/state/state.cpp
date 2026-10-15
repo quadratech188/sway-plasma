@@ -26,9 +26,10 @@ SwayState::SwayState(QObject* parent): QObject(parent), socket(this) {
 		qWarning() << socket.error();
 	});
 	connect(&socket, &QLocalSocket::connected, this, [this]() {
-		socket.send(SUBSCRIBE, QByteArray("['workspace']"));
+		socket.send(SUBSCRIBE, QByteArray("['workspace', 'mode']"));
 		// get_workspaces doesn't give us node ids, get_tree does
 		socket.send(GET_WORKSPACES, QByteArray());
+		socket.send(GET_BINDING_STATE, QByteArray());
 	});
 	connect(&socket, &IPC::recv, this, &SwayState::handle_reply);
 	socket.connectToServer(swaysock);
@@ -57,8 +58,16 @@ void SwayState::handle_reply(uint32_t type, QJsonDocument const &doc) {
 			}
 			emit workspaces_changed();
 			break;
+		case GET_BINDING_STATE:
+			mode = doc["name"].toString();
+			emit mode_changed();
+			break;
 		case 0x80000000: // workspace
 			socket.send(GET_WORKSPACES, QByteArray());
+			break;
+		case 0x80000002: // mode
+			mode = doc["change"].toString();
+			emit mode_changed();
 			break;
 		default:
 			break;

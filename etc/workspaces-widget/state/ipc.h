@@ -13,6 +13,7 @@ enum SwayMsgType {
 	RUN_COMMAND = 0,
 	GET_WORKSPACES = 1,
 	SUBSCRIBE = 2,
+	GET_BINDING_STATE = 12
 };
 
 class IPC: public QLocalSocket {

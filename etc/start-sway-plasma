@@ -6,3 +6,10 @@ mkdir -p $XDG_RUNTIME_DIR/systemd/transient/xdg-desktop-portal.service.d
 ln -s /usr/share/sway-plasma/xdg-desktop-portal-env.conf $XDG_RUNTIME_DIR/systemd/transient/xdg-desktop-portal.service.d
 systemctl --user daemon-reload
 startplasma-wayland
+status=$?
+
+rm "$XDG_RUNTIME_DIR/systemd/transient/plasma-kwin_wayland.service"
+rm "$XDG_RUNTIME_DIR/systemd/transient/xdg-desktop-portal.service.d/xdg-desktop-portal-env.conf"
+systemctl --user daemon-reload
+
+exit "$status"

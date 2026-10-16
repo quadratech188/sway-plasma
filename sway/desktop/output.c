@@ -402,7 +402,6 @@ void update_output_manager_config(struct sway_server *server) {
 	}
 
 	wlr_output_manager_v1_set_configuration(server->output_manager_v1, config);
-	kde_output_order_v1_update_outputs(server->kde_output_order_v1);
 	ipc_event_output();
 }
 

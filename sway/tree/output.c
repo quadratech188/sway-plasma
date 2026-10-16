@@ -3,6 +3,7 @@
 #include <string.h>
 #include <strings.h>
 #include <wlr/types/wlr_ext_workspace_v1.h>
+#include "sway/desktop/kde_output_order_v1.h"
 #include "sway/tree/workspace.h"
 #include "sway/ipc-server.h"
 #include "sway/layers.h"
@@ -156,6 +157,7 @@ void output_enable(struct sway_output *output) {
 	list_add(root->outputs, output);
 
 	sway_ext_workspace_output_enable(output);
+	kde_output_order_v1_update_outputs(server.kde_output_order_v1);
 	restore_workspaces(output);
 
 	struct sway_workspace *ws = NULL;
@@ -296,6 +298,7 @@ void output_disable(struct sway_output *output) {
 	destroy_layers(output);
 	output_evacuate(output);
 	sway_ext_workspace_output_disable(output);
+	kde_output_order_v1_update_outputs(server.kde_output_order_v1);
 }
 
 void output_begin_destroy(struct sway_output *output) {

@@ -1,8 +1,10 @@
 import QtQuick
 
+import org.kde.kirigami as Kirigami
 import org.kde.ksvg as KSvg
 import org.kde.plasma.components as Components
-import org.kde.kirigami as Kirigami
+import org.kde.plasma.core as PlasmaCore
+import org.kde.plasma.plasmoid
 
 import com.github.quadratech188.swaystate as Sway
 
@@ -36,9 +38,28 @@ Components.Button {
 		readonly property string base_prefix: root.modelData.urgent? 'attention'
 				: root.modelData.focused? 'focus': 'normal'
 
+		readonly property string location_prefix: {
+			let result
+			switch (Plasmoid.location) {
+			case PlasmaCore.Types.LeftEdge:
+				result = 'west'
+				break
+			case PlasmaCore.Types.TopEdge:
+				result = 'north'
+				break
+			case PlasmaCore.Types.RightEdge:
+				result = 'east'
+				break
+			default:
+				result = 'south'
+				break
+			}
+			result
+		}
+
 		prefix: {
 			function gen(p) {
-				return [p, 'south-' + p]
+				return [location_prefix + '-' + p, p]
 			}
 			root.hovered
 				? [...gen(base_prefix + '-hover'), ...gen('hover'), ...gen(base_prefix)]

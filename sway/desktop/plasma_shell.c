@@ -81,8 +81,8 @@ void plasma_surface_apply_container_attributes(struct plasma_surface *plasma) {
 			if (workspace) {
 				container_floating_move_to(
 					container,
-					(double)workspace->width / 2 - container->pending.width / 2,
-					2 * (double) workspace->height / 3 - container->pending.height / 2
+					workspace->x + (double)workspace->width / 2 - container->pending.width / 2,
+					workspace->y + 2 * (double) workspace->height / 3 - container->pending.height / 2
 				);
 			}
 			break;

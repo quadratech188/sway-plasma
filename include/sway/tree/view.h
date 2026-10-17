@@ -55,6 +55,7 @@ struct sway_view_impl {
 	void (*set_fullscreen)(struct sway_view *view, bool fullscreen);
 	void (*set_resizing)(struct sway_view *view, bool resizing);
 	bool (*wants_floating)(struct sway_view *view);
+	bool (*allows_tiling)(struct sway_view *view);
 	bool (*is_transient_for)(struct sway_view *child,
 			struct sway_view *ancestor);
 	bool (*takes_focus)(struct sway_view *view);

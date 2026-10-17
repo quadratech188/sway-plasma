@@ -49,6 +49,7 @@ void plasma_surface_attach_to_view(struct plasma_surface *plasma, struct sway_vi
 void plasma_surface_detach_from_view(struct plasma_surface *plasma);
 
 bool plasma_surface_takes_focus(struct plasma_surface *plasma);
+bool plasma_surface_allows_tiling(struct plasma_surface *plasma);
 
 void plasma_surface_apply_container_attributes(struct plasma_surface *plasma);
 #endif

@@ -48,6 +48,10 @@ struct cmd_results *cmd_floating(int argc, char **argv) {
 	bool wants_floating =
 		parse_boolean(argv[0], container_is_floating(container));
 
+	if (container->view && !container->view->impl->allows_tiling(container->view)) {
+		return cmd_results_new(CMD_FAILURE, "View doesn't allow tiling");
+	}
+
 	container_set_floating(container, wants_floating);
 
 	// Floating containers in the scratchpad should be ignored

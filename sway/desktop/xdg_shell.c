@@ -235,6 +235,13 @@ static bool wants_floating(struct sway_view *view) {
 		|| toplevel->parent;
 }
 
+static bool allows_tiling(struct sway_view *view) {
+	if (view->plasma_surface && !plasma_surface_allows_tiling(view->plasma_surface)) {
+		return false;
+	}
+	return true;
+}
+
 static bool is_transient_for(struct sway_view *child,
 		struct sway_view *ancestor) {
 	if (xdg_shell_view_from_view(child) == NULL) {
@@ -290,6 +297,7 @@ static const struct sway_view_impl view_impl = {
 	.set_fullscreen = set_fullscreen,
 	.set_resizing = set_resizing,
 	.wants_floating = wants_floating,
+	.allows_tiling = allows_tiling,
 	.is_transient_for = is_transient_for,
 	.takes_focus = takes_focus,
 	.close = _close,

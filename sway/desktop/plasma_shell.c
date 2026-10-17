@@ -50,6 +50,10 @@ bool plasma_surface_takes_focus(struct plasma_surface *plasma) {
 	}
 }
 
+bool plasma_surface_allows_tiling(struct plasma_surface *plasma) {
+	return plasma->config.role == ORG_KDE_PLASMA_SURFACE_ROLE_NORMAL;
+}
+
 void plasma_surface_apply_container_attributes(struct plasma_surface *plasma) {
 	if (!plasma->view) return;
 	if (!plasma->view->container) return;

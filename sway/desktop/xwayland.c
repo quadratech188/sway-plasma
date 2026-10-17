@@ -339,6 +339,11 @@ static bool wants_floating(struct sway_view *view) {
 	return false;
 }
 
+static bool allows_tiling(struct sway_view *view) {
+	// TODO
+	return true;
+}
+
 static void handle_set_decorations(struct wl_listener *listener, void *data) {
 	struct sway_xwayland_view *xwayland_view =
 		wl_container_of(listener, xwayland_view, set_decorations);
@@ -412,6 +417,7 @@ static const struct sway_view_impl view_impl = {
 	.set_tiled = set_tiled,
 	.set_fullscreen = set_fullscreen,
 	.wants_floating = wants_floating,
+	.allows_tiling = allows_tiling,
 	.is_transient_for = is_transient_for,
 	.takes_focus = takes_focus,
 	.close = _close,

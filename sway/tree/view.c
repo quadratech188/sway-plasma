@@ -1053,10 +1053,12 @@ void view_unmap(struct sway_view *view) {
 
 void view_update_size(struct sway_view *view) {
 	struct sway_container *con = view->container;
-	if (con->resize_edge & WLR_EDGE_LEFT) {
+	if (fabs(con->pending.x + con->pending.width - con->current.x - con->current.width) < 0.001) {
+		// Anchor right edge
 		con->pending.content_x += (con->pending.content_width - view->geometry.width);
 	}
-	if (con->resize_edge & WLR_EDGE_TOP) {
+	if (fabs(con->pending.y + con->pending.height - con->current.y - con->current.height) < 0.001) {
+		// Anchor right edge
 		con->pending.content_y += (con->pending.content_height - view->geometry.height);
 	}
 

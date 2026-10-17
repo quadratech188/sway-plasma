@@ -54,10 +54,7 @@ bool plasma_surface_allows_tiling(struct plasma_surface *plasma) {
 	return plasma->config.role == ORG_KDE_PLASMA_SURFACE_ROLE_NORMAL;
 }
 
-void plasma_surface_apply_container_attributes(struct plasma_surface *plasma) {
-	if (!plasma->view) return;
-	if (!plasma->view->container) return;
-
+static void apply_container_role(struct plasma_surface *plasma) {
 	struct sway_container *container = plasma->view->container;
 
 	enum sway_container_layer new_layer = LAYER_FLOATING;
@@ -96,11 +93,23 @@ void plasma_surface_apply_container_attributes(struct plasma_surface *plasma) {
 	if (plasma->config.role != ORG_KDE_PLASMA_SURFACE_ROLE_NORMAL) {
 		container->is_sticky = true;
 	}
+}
+
+static void apply_container_position(struct plasma_surface *plasma) {
+	struct sway_container *container = plasma->view->container;
 
 	if (plasma->config.position.configured && container->resize_edge == WLR_EDGE_NONE) {
 		container_set_floating(container, true);
 		container_floating_move_to(container, plasma->config.position.x, plasma->config.position.y);
 	}
+}
+
+void plasma_surface_apply_container_attributes(struct plasma_surface *plasma) {
+	if (!plasma->view) return;
+	if (!plasma->view->container) return;
+
+	apply_container_role(plasma);
+	apply_container_position(plasma);
 }
 
 static struct plasma_surface *plasma_surface_from_resource(struct wl_resource *resource) {
@@ -170,7 +179,9 @@ static void plasma_surface_set_position(
 	surface->config.position.y = y;
 	surface->config.position.configured = true;
 
-	plasma_surface_apply_container_attributes(surface);
+	if (surface->view && surface->view->container) {
+		apply_container_position(surface);
+	}
 }
 
 static void plasma_surface_set_role(
@@ -181,7 +192,9 @@ static void plasma_surface_set_role(
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
 	surface->config.role = role;
 
-	plasma_surface_apply_container_attributes(surface);
+	if (surface->view && surface->view->container) {
+		apply_container_role(surface);
+	}
 }
 
 static void plasma_surface_set_panel_behavior(

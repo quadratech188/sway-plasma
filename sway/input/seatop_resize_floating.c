@@ -114,9 +114,9 @@ static void handle_pointer_motion(struct sway_seat *seat, uint32_t time_msec) {
 	else if (edge & WLR_EDGE_RIGHT)  {relative_grow_x = 0;}
 	else                             {relative_grow_x = - (double)relative_grow_width / 2;}
 
-	if (edge & WLR_EDGE_TOP)         {relative_grow_x = - relative_grow_height;}
-	else if (edge & WLR_EDGE_BOTTOM) {relative_grow_x = 0;}
-	else                             {relative_grow_x = - (double)relative_grow_height / 2;}
+	if (edge & WLR_EDGE_TOP)         {relative_grow_y = - relative_grow_height;}
+	else if (edge & WLR_EDGE_BOTTOM) {relative_grow_y = 0;}
+	else                             {relative_grow_y = - (double)relative_grow_height / 2;}
 
 	// Actually resize stuff
 	con->pending.x += relative_grow_x;

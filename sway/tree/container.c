@@ -110,6 +110,7 @@ struct sway_container *container_create(struct sway_view *view) {
 		c->current.children = create_list();
 	}
 
+	c->view_anchors = WLR_EDGE_LEFT | WLR_EDGE_TOP;
 	c->pending.layout = L_NONE;
 	c->view = view;
 	c->alpha = 1.0f;
@@ -121,6 +122,21 @@ struct sway_container *container_create(struct sway_view *view) {
 	container_update(c);
 
 	return c;
+}
+
+void container_set_anchors_from_resize(struct sway_container *con, enum wlr_edges edges) {
+	if (edges & (WLR_EDGE_LEFT | WLR_EDGE_RIGHT)) {
+		con->view_anchors &= ~(WLR_EDGE_LEFT | WLR_EDGE_RIGHT);
+
+		if (edges & WLR_EDGE_RIGHT) {con->view_anchors |= WLR_EDGE_LEFT;}
+		else {con->view_anchors |= WLR_EDGE_RIGHT;}
+	}
+	if (edges & (WLR_EDGE_TOP | WLR_EDGE_BOTTOM)) {
+		con->view_anchors &= ~(WLR_EDGE_TOP | WLR_EDGE_BOTTOM);
+
+		if (edges & WLR_EDGE_BOTTOM) {con->view_anchors |= WLR_EDGE_TOP;}
+		else {con->view_anchors |= WLR_EDGE_BOTTOM;}
+	}
 }
 
 static bool container_is_focused(struct sway_container *con, void *data) {

@@ -125,6 +125,9 @@ struct sway_container {
 	double saved_x, saved_y;
 	double saved_width, saved_height;
 
+	// Which edges to align the view to
+	enum wlr_edges view_anchors;
+
 	// Used when the view changes to CSD unexpectedly. This will be a non-B_CSD
 	// border which we use to restore when the view returns to SSD.
 	enum sway_container_border saved_border;
@@ -200,6 +203,8 @@ size_t container_build_representation(enum sway_container_layout layout,
 		list_t *children, char *buffer);
 
 void container_update_representation(struct sway_container *container);
+
+void container_set_anchors_from_resize(struct sway_container *con, enum wlr_edges edges);
 
 /**
  * Return the height of a regular title bar.

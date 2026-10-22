@@ -27,6 +27,7 @@ static void handle_button(struct sway_seat *seat, uint32_t time_msec,
 	if (seat->cursor->pressed_button_count == 0) {
 		container_set_resizing(con, false);
 		arrange_container(con); // Send configure w/o resizing hint
+		con->view_anchors = WLR_EDGE_LEFT | WLR_EDGE_TOP;
 		transaction_commit_dirty();
 		seatop_begin_default(seat);
 	}
@@ -172,6 +173,7 @@ void seatop_begin_resize_floating(struct sway_seat *seat,
 	seat->seatop_impl = &seatop_impl;
 	seat->seatop_data = e;
 
+	container_set_anchors_from_resize(con, e->edge);
 	container_set_resizing(con, true);
 	container_raise_floating(con);
 	transaction_commit_dirty();

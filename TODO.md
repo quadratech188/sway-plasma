@@ -1,5 +1,5 @@
 - [x] Wire up Logout button
-- [ ] Debug widget resize lag
+- [x] Debug widget resize lag
 - [ ] Debug picture-in-picture resize flicker
 - [ ] Inhibit dragging notifications (also resize if KWin does the same)
 - [ ] Reimplement screen locking

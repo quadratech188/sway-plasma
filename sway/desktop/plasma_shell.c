@@ -23,6 +23,13 @@ void plasma_surface_attach_to_view(struct plasma_surface *plasma, struct sway_vi
 	view->plasma_surface = plasma;
 	plasma->view = view;
 
+	if (plasma->config.role != ORG_KDE_PLASMA_SURFACE_ROLE_NORMAL) {
+		plasma->config.role_committed = false;
+	}
+	if (plasma->config.position.has_value) {
+		plasma->config.position_committed = false;
+	}
+
 	wl_list_remove(&plasma->unassigned_surfaces_link);
 	wl_list_init(&plasma->unassigned_surfaces_link);
 }
@@ -96,20 +103,28 @@ static void apply_container_role(struct plasma_surface *plasma) {
 }
 
 static void apply_container_position(struct plasma_surface *plasma) {
+	if (!plasma->config.position.has_value) return;
 	struct sway_container *container = plasma->view->container;
 
-	if (plasma->config.position.configured && container->resize_edge == WLR_EDGE_NONE) {
-		container_set_floating(container, true);
-		container_floating_move_to(container, plasma->config.position.x, plasma->config.position.y);
-	}
+	container_set_floating(container, true);
+	container_floating_move_to(container, plasma->config.position.x, plasma->config.position.y);
 }
 
-void plasma_surface_apply_container_attributes(struct plasma_surface *plasma) {
-	if (!plasma->view) return;
-	if (!plasma->view->container) return;
+bool plasma_surface_apply_container_attributes(struct plasma_surface *plasma) {
+	bool needs_transaction = false;
 
-	apply_container_role(plasma);
-	apply_container_position(plasma);
+	if (!plasma->config.role_committed) {
+		apply_container_role(plasma);
+		plasma->config.role_committed = true;
+		needs_transaction = true;
+	}
+
+	if (!plasma->config.position_committed) {
+		apply_container_position(plasma);
+		plasma->config.position_committed = true;
+		needs_transaction = true;
+	}
+	return needs_transaction;
 }
 
 static struct plasma_surface *plasma_surface_from_resource(struct wl_resource *resource) {
@@ -177,11 +192,8 @@ static void plasma_surface_set_position(
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
 	surface->config.position.x = x;
 	surface->config.position.y = y;
-	surface->config.position.configured = true;
-
-	if (surface->view && surface->view->container) {
-		apply_container_position(surface);
-	}
+	surface->config.position.has_value = true;
+	surface->config.position_committed = false;
 }
 
 static void plasma_surface_set_role(
@@ -191,10 +203,7 @@ static void plasma_surface_set_role(
 ) {
 	struct plasma_surface *surface = plasma_surface_from_resource(resource);
 	surface->config.role = role;
-
-	if (surface->view && surface->view->container) {
-		apply_container_role(surface);
-	}
+	surface->config.role_committed = false;
 }
 
 static void plasma_surface_set_panel_behavior(
@@ -326,6 +335,10 @@ static void plasma_shell_get_surface(
 
 	surface->shell = shell;
 	surface->surface = wlr_surface;
+
+	// Ignore initial values
+	surface->config.role_committed = true;
+	surface->config.position_committed = true;
 
 	struct wl_resource *resource = wl_resource_create(
 		wl_client,

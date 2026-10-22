@@ -26,10 +26,14 @@ struct plasma_surface {
 
 	struct {
 		enum org_kde_plasma_surface_role role;
+		bool role_committed;
+
 		struct {
 			int32_t x, y;
-			bool configured;
+			bool has_value;
 		} position;
+		bool position_committed;
+
 		enum {
 			TAKES_FOCUS_DEFAULT = 0,
 			TAKES_FOCUS_OVERRIDE_TRUE,
@@ -51,5 +55,5 @@ void plasma_surface_detach_from_view(struct plasma_surface *plasma);
 bool plasma_surface_takes_focus(struct plasma_surface *plasma);
 bool plasma_surface_allows_tiling(struct plasma_surface *plasma);
 
-void plasma_surface_apply_container_attributes(struct plasma_surface *plasma);
+bool plasma_surface_apply_container_attributes(struct plasma_surface *plasma);
 #endif

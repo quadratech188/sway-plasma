@@ -107,8 +107,6 @@ struct sway_container {
 	struct sway_container_state current;
 	struct sway_container_state pending;
 
-	enum wlr_edges resize_edge;
-
 	char *title;           // The view's title (unformatted)
 	int title_width;
 

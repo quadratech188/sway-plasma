@@ -351,6 +351,10 @@ static void handle_commit(struct wl_listener *listener, void *data) {
 		view_center_and_clip_surface(view);
 	}
 
+	if (view->plasma_surface && plasma_surface_apply_container_attributes(view->plasma_surface)) {
+		transaction_commit_dirty();
+	}
+
 	if (view->container->node.instruction) {
 		bool successful = transaction_notify_view_ready_by_serial(view,
 				xdg_surface->current.configure_serial);

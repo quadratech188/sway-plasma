@@ -29,7 +29,6 @@ static void handle_button(struct sway_seat *seat, uint32_t time_msec,
 		arrange_container(con); // Send configure w/o resizing hint
 		transaction_commit_dirty();
 		seatop_begin_default(seat);
-		con->resize_edge = WLR_EDGE_NONE;
 	}
 }
 
@@ -106,30 +105,18 @@ static void handle_pointer_motion(struct sway_seat *seat, uint32_t time_msec) {
 	grow_width = width - e->ref_width;
 	grow_height = height - e->ref_height;
 
-	// Determine grow x/y values - these are relative to the container's x/y at
-	// the start of the resize operation.
-	double grow_x = 0, grow_y = 0;
-	if (edge & WLR_EDGE_LEFT) {
-		grow_x = -grow_width;
-	} else if (edge & WLR_EDGE_RIGHT) {
-		grow_x = 0;
-	} else {
-		grow_x = -grow_width / 2;
-	}
-	if (edge & WLR_EDGE_TOP) {
-		grow_y = -grow_height;
-	} else if (edge & WLR_EDGE_BOTTOM) {
-		grow_y = 0;
-	} else {
-		grow_y = -grow_height / 2;
-	}
-
-	// Determine the amounts we need to bump everything relative to the current
-	// size.
 	int relative_grow_width = width - con->pending.width;
 	int relative_grow_height = height - con->pending.height;
-	int relative_grow_x = (e->ref_con_lx + grow_x) - con->pending.x;
-	int relative_grow_y = (e->ref_con_ly + grow_y) - con->pending.y;
+
+	// Account for the container moving under us
+	double relative_grow_x = 0, relative_grow_y = 0;
+	if (edge & WLR_EDGE_LEFT)        {relative_grow_x = - relative_grow_width;}
+	else if (edge & WLR_EDGE_RIGHT)  {relative_grow_x = 0;}
+	else                             {relative_grow_x = - (double)relative_grow_width / 2;}
+
+	if (edge & WLR_EDGE_TOP)         {relative_grow_x = - relative_grow_height;}
+	else if (edge & WLR_EDGE_BOTTOM) {relative_grow_x = 0;}
+	else                             {relative_grow_x = - (double)relative_grow_height / 2;}
 
 	// Actually resize stuff
 	con->pending.x += relative_grow_x;
@@ -181,8 +168,6 @@ void seatop_begin_resize_floating(struct sway_seat *seat,
 	e->ref_con_ly = con->pending.y;
 	e->ref_width = con->pending.width;
 	e->ref_height = con->pending.height;
-
-	con->resize_edge = e->edge;
 
 	seat->seatop_impl = &seatop_impl;
 	seat->seatop_data = e;

@@ -13,6 +13,8 @@ bindsym XF86MonBrightnessUp exec qdbus-qt6 \
 	/org/kde/ScreenBrightness \
 	AdjustBrightnessRatio +0.05 0
 
+swaybg_command -
+
 # If you remove this KDE *WILL NOT BOOT PROPERLY*
 exec /usr/libexec/sway-plasma/continue-kde-startup
 exec /usr/libexec/sway-plasma/sway-extensions

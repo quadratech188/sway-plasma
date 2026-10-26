@@ -18,8 +18,6 @@ input "type:touchpad" {
 	drag_lock disabled
 }
 
-for_window [app_id="kakaotalk.exe"] floating enable
-
 # Style
 
 seat * xcursor_theme breeze_cursors 24
@@ -37,7 +35,7 @@ client.unfocused        #000000   #dbdbdb    #7f7f7f
 
 bindgesture swipe:3:left workspace next
 bindgesture swipe:3:right workspace prev
-bindgesture swipe:3:up exec $menu
+bindgesture swipe:3:up exec $scoped $menu
 bindgesture swipe:3:down exec wtype -k 'Escape'
 
 bindgesture swipe:4:up move up
@@ -52,17 +50,20 @@ floating_modifier Super normal
 
 # Keys
 
+# set $scoped systemd-run --user --scope --quiet --collect
+set $scoped env
+
 set $menu vicinae toggle
 set $term kitty
-set $exit swaynag -t warning -m 'You pressed the exit shortcut. Do you really want to exit sway? This will end your Wayland session.' -B 'Yes, exit sway' 'swaymsg exit'
+set $screenshot flameshot gui
+
 set $step 80px
 
-bindsym Super+Return exec $term
-bindsym Alt+Hangul exec $menu
-bindsym Print exec flameshot gui
+bindsym Super+Return exec $scoped $term
+bindsym Alt+Hangul exec $scoped $menu
+bindsym Print exec $scoped $screenshot
 
 bindsym Super+Alt+Control+R reload
-bindsym Super+Alt+Control+E exec $exit
 
 bindsym Super+Backspace kill
 
@@ -118,8 +119,15 @@ bindsym Super+Alt+8 move container to workspace number 8; workspace number 8
 bindsym Super+Alt+9 move container to workspace number 9; workspace number 9
 bindsym Super+Alt+0 move container to workspace number 10; workspace number 10
 
-bindsym Super+Alt+Control+1 move workspace to output 1
-bindsym Super+Alt+Control+2 move workspace to output 2
+bindsym Super+Control+H focus output left
+bindsym Super+Control+J focus output down
+bindsym Super+Control+K focus output up
+bindsym Super+Control+L focus output right
+
+bindsym Super+Control+Y move workspace to output left
+bindsym Super+Control+U move workspace to output down
+bindsym Super+Control+I move workspace to output up
+bindsym Super+Control+O move workspace to output right
 
 mode "resize" {
     bindsym H resize shrink width $step

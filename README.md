@@ -23,21 +23,21 @@ Everything that is not the compositor lives in `./etc/`.
 https://copr.fedorainfracloud.org/coprs/quadratech188/sway-plasma/
 
 ### From Source
-```
-meson setup builddir .
+```bash
+# Sway requires wlroots 0.21-dev, your distro probably doesn't ship it.
+# We'll download it as a subproject instead.
+meson setup builddir . \
+    --wrap-mode=nofallback \
+    --force-fallback-for=wlroots
+
 meson compile -C builddir
-sudo meson install -C builddir
+sudo meson install -C builddir --skip-subprojects
 
 cd etc
 cmake -S . -B build -G Ninja
 cmake --build build
 sudo cmake --install build
 ```
-
-> [!NOTE]
-> This project was forked after sway bumped its required `wlroots` version to 0.21. Most distributions still ship 0.20, so the setup may fail.
-> - Clone the `wlroots` repo inside `./subprojects/`.
-> - `meson`'s default library install directory (`/usr/local/lib64/`) may not exist in `ld`'s search path. Add an entry in `/etc/ld.so.conf.d/` if this is the case.
 
 Select 'Sway Plasma' from your display manager.
 Copy the configuration file from `/usr/local/etc/sway-plasma` to `~/.config/sway-plasma` to make changes.

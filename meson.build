@@ -42,7 +42,7 @@ endif
 wlroots_version = ['>=0.21.0', '<0.22.0']
 subproject(
 	'wlroots',
-	default_options: ['examples=false'],
+	default_options: ['examples=false', 'default_library=static'],
 	required: false,
 	version: wlroots_version,
 )

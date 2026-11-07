@@ -1,7 +1,7 @@
 project(
-	'sway',
+	'sway-plasma',
 	'c',
-	version: '1.13-dev',
+	version: '0.1.0',
 	license: 'MIT',
 	meson_version: '>=1.3',
 	default_options: [

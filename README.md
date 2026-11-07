@@ -17,7 +17,12 @@
 
 Everything that is not the compositor lives in `./etc/`.
 
-## Usage
+## Installation
+
+### Fedora COPR
+https://copr.fedorainfracloud.org/coprs/quadratech188/sway-plasma/
+
+### From Source
 ```
 meson setup builddir .
 meson compile -C builddir

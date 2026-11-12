@@ -1,17 +1,37 @@
-bindsym XF86AudioRaiseVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.0
-bindsym XF86AudioLowerVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
-bindsym XF86AudioMute        exec wpctl set-mute   @DEFAULT_AUDIO_SINK@ toggle
-bindsym XF86AudioMicMute     exec wpctl set-mute   @DEFAULT_AUDIO_SOURCE@ toggle
+# Requires: wireplumber
+bindsym --locked {
+	XF86AudioRaiseVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.0
+	XF86AudioLowerVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+	XF86AudioMute        exec wpctl set-mute   @DEFAULT_AUDIO_SINK@ toggle
+	XF86AudioMicMute     exec wpctl set-mute   @DEFAULT_AUDIO_SOURCE@ toggle
+}
 
-bindsym XF86MonBrightnessDown exec qdbus-qt6 \
-	org.kde.ScreenBrightness \
-	/org/kde/ScreenBrightness \
-	AdjustBrightnessRatio -0.05 0
+# Requires: playerctl
+bindsym --locked {
+	XF86AudioPlay exec playerctl play-pause
+	XF86AudioStop exec playerctl stop
+}
 
-bindsym XF86MonBrightnessUp exec qdbus-qt6 \
-	org.kde.ScreenBrightness \
-	/org/kde/ScreenBrightness \
-	AdjustBrightnessRatio +0.05 0
+bindsym {
+	XF86AudioForward exec playerctl position +10
+	XF86AudioNext    exec playerctl next
+	XF86AudioPause   exec playerctl pause
+	XF86AudioPrev    exec playerctl previous
+	XF86AudioRewind  exec playerctl position -10
+}
+
+# Requires: qt6-qttools
+bindsym {
+	XF86MonBrightnessDown exec qdbus-qt6 \
+		org.kde.ScreenBrightness \
+		/org/kde/ScreenBrightness \
+		AdjustBrightnessRatio -0.05 0
+
+	XF86MonBrightnessUp exec qdbus-qt6 \
+		org.kde.ScreenBrightness \
+		/org/kde/ScreenBrightness \
+		AdjustBrightnessRatio +0.05 0
+}
 
 swaybg_command -
 

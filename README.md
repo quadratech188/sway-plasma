@@ -39,5 +39,7 @@ cmake --build build
 sudo cmake --install build
 ```
 
+## Usage
+
 Select 'Sway Plasma' from your display manager.
-Copy the configuration file from `/usr/local/etc/sway-plasma` to `~/.config/sway-plasma` to make changes.
+Copy the configuration file from `/etc/sway-plasma` (or `/usr/local/etc/sway-plasma` if you installed locally) to `~/.config/sway-plasma` to make changes.

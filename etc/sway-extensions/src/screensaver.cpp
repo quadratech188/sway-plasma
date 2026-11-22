@@ -48,6 +48,11 @@ void ScreenSaver::handle_service_unregister(QString const& name) {
 	}
 }
 
+void ScreenSaver::Lock() {
+	auto *swaylock = new QProcess(this);
+	swaylock->start("swaylock");
+}
+
 uint ScreenSaver::Inhibit(QString const& name, QString const& reason) {
 	auto policyagent = make_policyagent();
 	auto reply = policyagent.AddInhibition(CHANGE_SCREEN_SETTINGS, name, reason);

@@ -24,6 +24,7 @@ private:
 	void handle_service_unregister(QString const& name);
 
 public slots:
+	void Lock();
 	uint Inhibit(QString const& name, QString const& reason);
 	void UnInhibit(uint cookie);
 };

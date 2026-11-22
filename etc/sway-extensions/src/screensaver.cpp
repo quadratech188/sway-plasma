@@ -32,6 +32,19 @@ ScreenSaver::ScreenSaver(QObject* parent):
 		&service_watcher, &QDBusServiceWatcher::serviceUnregistered,
 		this, &ScreenSaver::handle_service_unregister
 	);
+
+	QDBusConnection::systemBus().connect(
+		"org.freedesktop.login1",
+		"/org/freedesktop/login1",
+		"org.freedesktop.login1.Manager",
+		"PrepareForSleep",
+		this, SLOT(handle_prepare_for_sleep(bool))
+	);
+}
+
+void ScreenSaver::handle_prepare_for_sleep(bool sleeping) {
+	if (!sleeping) return;
+	Lock();
 }
 
 void ScreenSaver::handle_service_unregister(QString const& name) {

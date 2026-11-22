@@ -23,6 +23,9 @@ private:
 
 	void handle_service_unregister(QString const& name);
 
+private slots:
+	void handle_prepare_for_sleep(bool sleeping);
+
 public slots:
 	void Lock();
 	uint Inhibit(QString const& name, QString const& reason);
